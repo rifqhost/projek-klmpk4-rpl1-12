@@ -395,7 +395,7 @@ if($tid){
     $rows=q('SELECT u.name siswa,e.title ujian,r.score,r.status,r.submitted_at FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id ORDER BY r.id DESC')->fetchAll(PDO::FETCH_ASSOC);
   }
 ?>
-<div class="d-flex gap-2 mb-3">
+<div class="d-flex gap-2 mb-3 flex-wrap">
   <a class="btn btn-success" href="?action=export"><i class="bi bi-file-earmark-excel"></i> Export Excel (CSV)</a>
   <button class="btn btn-danger" onclick="window.print()"><i class="bi bi-file-earmark-pdf"></i> Cetak / PDF</button>
 </div>
