@@ -660,6 +660,30 @@ body {
   color: var(--cb-primary) !important;
 }
 
+.badge-active {
+  background: var(--cb-green-bg);
+  color: var(--cb-green);
+  border: 1px solid #a7f3d0;
+}
+
+.badge-inactive {
+  background: var(--cb-red-bg);
+  color: var(--cb-red);
+  border: 1px solid #fecaca;
+}
+
+.badge-warning {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.badge-info {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
 /* ============================================
    BUTTONS
    ============================================ */
@@ -950,6 +974,16 @@ textarea.form-control.answer {
   .sidebar.open {
     transform: translateX(0);
     box-shadow: 4px 0 24px rgba(0,0,0,.15);
+  }
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 1029;
+  }
+  .sidebar.open ~ .sidebar-backdrop {
+    display: block;
   }
   .content {
     margin-left: 0;
