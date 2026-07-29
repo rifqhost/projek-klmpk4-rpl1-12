@@ -89,24 +89,21 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.addEventListener('resize',()=>{if(window.innerWidth>=768&&sidebar&&sidebar.classList.contains('open')){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}});
 
   const navGrid=document.querySelector('.exam-nav-grid');
+  function updateNavStatus(){
+    if(!navGrid)return;
+    document.querySelectorAll('.question').forEach(q=>{
+      const qid=q.dataset.q; const navEl=navGrid.querySelector(`[data-q="${qid}"]`);
+      if(!navEl)return;
+      let hasAnswer=q.querySelector('textarea.answer')?q.querySelector('textarea.answer').value.trim()!=='':!!q.querySelector('input.answer:checked');
+      const isFlagged=q.querySelector('.ragu-btn.active')!==null;
+      navEl.className='nav-q';
+      if(isFlagged)navEl.classList.add('flagged');
+      else if(hasAnswer)navEl.classList.add('answered');
+      else navEl.classList.add('unanswered');
+    });
+  }
   if(navGrid){
-    function updateNavStatus(){
-      document.querySelectorAll('.question').forEach(q=>{
-        const qid=q.dataset.q;
-        const no=q.dataset.no;
-        const navEl=navGrid.querySelector(`[data-q="${qid}"]`);
-        if(!navEl)return;
-        let hasAnswer=false;
-        if(q.querySelector('textarea.answer'))hasAnswer=q.querySelector('textarea.answer').value.trim()!=='';
-        else hasAnswer=!!q.querySelector('input.answer:checked');
-        const isFlagged=q.querySelector('.ragu-btn.active')!==null;
-        navEl.className='nav-q';
-        if(isFlagged)navEl.classList.add('flagged');
-        else if(hasAnswer)navEl.classList.add('answered');
-        else navEl.classList.add('unanswered');
-      });
-    }
-    navGrid.addEventListener('click',e=>{const a=e.target.closest('.nav-q');if(a){e.preventDefault();const q=document.querySelector(`.question[data-q="${a.dataset.q}"]`);ifq){q.scrollIntoView({behavior:'smooth',block:'center'});q.style.transition='box-shadow .3s';q.style.boxShadow='0 0 0 3px #4f46e5';setTimeout(()=>q.style.boxShadow='',1500)}}});
+    navGrid.addEventListener('click',e=>{const a=e.target.closest('.nav-q');if(a){e.preventDefault();const q=document.querySelector(`.question[data-q="${a.dataset.q}"]`);if(q){q.scrollIntoView({behavior:'smooth',block:'center'});q.style.transition='box-shadow .3s';q.style.boxShadow='0 0 0 3px #4f46e5';setTimeout(()=>q.style.boxShadow='',1500)}}});
     document.querySelectorAll('.answer').forEach(el=>el.addEventListener('change',updateNavStatus));
     document.querySelectorAll('textarea.answer').forEach(el=>el.addEventListener('input',()=>{clearTimeout(el._navTimer);el._navTimer=setTimeout(updateNavStatus,500)}));
     updateNavStatus();
@@ -120,10 +117,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       this.querySelector('i').className=isActive?'bi bi-flag-fill':'bi bi-flag';
       this.querySelector('span').textContent=isActive?'Ragu':'Ragu';
       if(resultId)fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({action:'flag_answer',result:resultId,question:qid,flagged:isActive?1:0})}).then(r=>r.json());
-      if(navGrid){
-        const navEl=navGrid.querySelector(`[data-q="${qid}"]`);
-        if(navEl){navEl.className='nav-q';navEl.classList.add(isActive?'flagged':'unanswered');if(document.querySelector(`[data-q="${qid}"] input.answer:checked`)||(document.querySelector(`[data-q="${qid}"] textarea.answer`)?.value.trim()))navEl.classList.add(isActive?'flagged':'answered')}
-      }
+      setTimeout(updateNavStatus,50);
     });
   });
 
