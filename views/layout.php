@@ -384,17 +384,43 @@ if($tid){
   $history=q('SELECT e.title,r.* FROM exam_results r JOIN students s ON s.id=r.student_id JOIN exams e ON e.id=r.exam_id WHERE s.user_id=? ORDER BY r.id DESC',[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <section class="panel mb-3">
-  <h5>Masukkan Token Ujian</h5>
-  <form class="row g-2" method="post" action="?action=start">
-    <?=csrf_field()?>
-    <div class="col-md-8"><input required name="token" class="form-control form-control-lg text-uppercase" placeholder="Contoh: A1B2C3D4"></div>
-    <div class="col"><button class="btn btn-primary btn-lg">Mulai Ujian</button></div>
-  </form>
+  <h5>Ujian Tersedia</h5>
+  <?php
+    $now=date('Y-m-d H:i:s');
+    $available=array_filter($active,fn($x)=>$x['starts_at']<=$now&&$x['ends_at']>=$now);
+    $inProgress=q('SELECT exam_id FROM exam_results r JOIN students s ON s.id=r.student_id WHERE s.user_id=? AND r.status="in_progress"',[$u['id']])->fetchAll(PDO::FETCH_COLUMN);
+  ?>
+  <?php if($available):?>
+  <div class="row g-3">
+    <?php foreach($available as $x):
+      $isStarted=in_array($x['id'],$inProgress);
+    ?>
+    <div class="col-md-6">
+      <div class="card border" style="border-radius:12px">
+        <div class="card-body">
+          <h6 class="mb-1"><?=e($x['title'])?></h6>
+          <small class="text-muted d-block mb-2"><?=e($x['starts_at'])?> s/d <?=e($x['ends_at'])?></small>
+          <?php if($isStarted):?>
+            <a href="?page=attempt&result=<?=q('SELECT id FROM exam_results WHERE exam_id=? AND student_id=(SELECT id FROM students WHERE user_id=?)',[$x['id'],$u['id']])->fetchColumn()?>" class="btn btn-warning btn-sm"><i class="bi bi-arrow-right"></i> Lanjutkan</a>
+          <?php else:?>
+            <form method="post" action="?action=start" style="display:inline"><?=csrf_field()?><input type="hidden" name="exam_id" value="<?=$x['id']?>"><button class="btn btn-primary btn-sm"><i class="bi bi-play"></i> Mulai Ujian</button></form>
+          <?php endif?>
+        </div>
+      </div>
+    </div>
+    <?php endforeach?>
+  </div>
+  <?php else:?>
+  <p class="text-muted mb-0">Tidak ada ujian aktif untuk kelas Anda saat ini.</p>
+  <?php endif?>
 </section>
 <div class="panel mb-3">
-  <h5>Jadwal Ujian</h5>
+  <h5>Jadwal Ujian (Semua)</h5>
   <?php foreach($active as $x):?>
-  <div class="border-bottom py-2"><b><?=e($x['title'])?></b><small class="d-block text-muted"><?=e($x['starts_at'])?> s/d <?=e($x['ends_at'])?></small></div>
+  <div class="border-bottom py-2 d-flex justify-content-between align-items-center">
+    <div><b><?=e($x['title'])?></b><small class="d-block text-muted"><?=e($x['starts_at'])?> s/d <?=e($x['ends_at'])?></small></div>
+    <?php if($x['starts_at']<=$now&&$x['ends_at']>$now):?><span class="badge badge-active">Sedang Berlangsung</span><?php elseif($x['ends_at']<$now):?><span class="badge badge-inactive">Selesai</span><?php else:?><span class="badge badge-warning">Akan Datang</span><?php endif?>
+  </div>
   <?php endforeach?>
   <?php if(!$active)echo '<p class="text-muted mb-0">Belum ada jadwal untuk kelas Anda.</p>'?>
 </div>
