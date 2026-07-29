@@ -1,14 +1,14 @@
 <?php
 $u=user(); $flash=$_SESSION['flash']??null; unset($_SESSION['flash']);
-function opts(string $table,string $selected='',$label='name'):string{$s=q("SELECT id,$label FROM $table ORDER BY $label")->fetchAll(PDO::FETCH_ASSOC);$o='';foreach($s as $r)$o.='<option value="'.$r['id'].'" '.((string)$r['id']===(string)$selected?'selected':'').'>'.e($r[$label]).'</option>';return $o;}
+function opts(string $table,string $selected='',$label='name'):string{if($table==='teachers'){$s=q("SELECT t.id,u.name FROM teachers t JOIN users u ON u.id=t.user_id ORDER BY u.name")->fetchAll(PDO::FETCH_ASSOC);$label='name';}else{$s=q("SELECT id,$label FROM $table ORDER BY $label")->fetchAll(PDO::FETCH_ASSOC);}$o='';foreach($s as $r)$o.='<option value="'.$r['id'].'" '.((string)$r['id']===(string)$selected?'selected':'').'>'.e($r[$label]).'</option>';return $o;}
 function modal(string $id,string $title,string $body):void{echo '<div class="modal fade" id="'.$id.'"><div class="modal-dialog modal-lg"><form method="post" class="modal-content"><div class="modal-header"><h5>'.$title.'</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">'.csrf_field().$body.'</div><div class="modal-footer"><button class="btn btn-primary">Simpan</button></div></form></div></div>';}
 function csrf_field():string{return '<input type="hidden" name="csrf" value="'.csrf().'">';}
 if(!$u): ?>
 <!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login | <?=APP_NAME?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"><link href="assets/css/style.css?v=<?=md5_file('assets/css/style.css')?>" rel="stylesheet"></head><body class="login-page"><div class="login-left"><div class="login-left-inner"><div class="login-brand"><i class="bi bi-mortarboard-fill"></i> <span>CBT</span>School</div><h1>Sistem Ujian<br><span>Berbasis Komputer</span></h1><p>Kelola ujian, bank soal, dan penilaian siswa dalam satu platform terintegrasi.</p><div class="login-features"><div class="login-feature"><i class="bi bi-shield-check"></i><span>Keamanan data terjamin</span></div><div class="login-feature"><i class="bi bi-lightning-charge"></i><span>Penilaian otomatis</span></div><div class="login-feature"><i class="bi bi-graph-up"></i><span>Statistik real-time</span></div></div></div><div class="login-left-footer">&copy; <?=date('Y')?> <?=APP_NAME?></div></div><div class="login-right"><main class="login-card"><div class="login-card-head"><div class="login-logo-sm"><i class="bi bi-mortarboard-fill"></i></div><h2>Selamat Datang</h2><p>Masuk ke akun Anda untuk melanjutkan</p></div><?php if($flash):?><div class="alert alert-<?=$flash[0]?>"><i class="bi bi-exclamation-circle"></i> <?=e($flash[1])?></div><?php endif?><form method="post" action="?action=login" class="login-form"><?=csrf_field()?><div class="field"><label for="email">Email</label><div class="field-input"><i class="bi bi-envelope"></i><input id="email" required type="email" name="email" placeholder="nama@sekolah.id"></div></div><div class="field"><label for="password">Password</label><div class="field-input"><i class="bi bi-lock"></i><input id="password" required type="password" name="password" placeholder="Masukkan password"></div></div><button type="submit" class="btn-login">Masuk <i class="bi bi-arrow-right"></i></button></form></main></div></body></html>
 <?php else:
-$nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-people'],'manage'=>['Data Master','bi-database'],'questions'=>['Bank Soal','bi-patch-question'],'exams'=>['Ujian & Jadwal','bi-calendar2-check'],'reports'=>['Laporan Nilai','bi-bar-chart'],'student'=>['Ujian Saya','bi-pencil-square']];
+$nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-people'],'manage'=>['Data Master','bi-database'],'questions'=>['Bank Soal','bi-patch-question'],'exams'=>['Ujian & Jadwal','bi-calendar2-check'],'grading'=>['Koreksi Essay','bi-check2-square'],'reports'=>['Laporan Nilai','bi-bar-chart'],'student'=>['Ujian Saya','bi-pencil-square'],'profile'=>['Profil','bi-person-gear'],'settings'=>['Pengaturan','bi-gear'],'logs'=>['Log Aktivitas','bi-clock-history']];
 ?>
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=e(ucfirst($page))?> | <?=APP_NAME?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"><link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" rel="stylesheet"><link href="assets/css/style.css" rel="stylesheet"></head><body>
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=e(ucfirst($page))?> | <?=APP_NAME?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"><link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" rel="stylesheet"><link href="assets/css/style.css?v=<?=filemtime('assets/css/style.css')?>" rel="stylesheet"></head><body>
 <aside class="sidebar">
   <a class="logo" href="?page=dashboard"><i class="bi bi-mortarboard-fill"></i> CBT<span>School</span></a>
   <div class="user-mini">
@@ -18,7 +18,8 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   <nav>
     <?php foreach($nav as $k=>$v):
       if($k==='student' && $u['role']!=='Siswa') continue;
-      if(in_array($k,['users','manage']) && $u['role']==='Guru') continue;
+      if($k==='grading' && $u['role']==='Siswa') continue;
+      if(in_array($k,['settings','logs','users','manage']) && $u['role']!=='Admin') continue;
     ?>
     <a class="<?=($page===$k?'active':'')?>" href="?page=<?=$k?>"><i class="bi <?=$v[1]?>"></i><?=$v[0]?></a>
     <?php endforeach?>
@@ -75,7 +76,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
       <?php foreach(array_keys($fields) as $f):?><td><?=e((string)($r[$f]??''))?></td><?php endforeach?>
       <td class="text-nowrap">
         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#edit_<?=$r['id']?>" title="Edit"><i class="bi bi-pencil"></i></button>
-        <a onclick="return confirm('Hapus data ini?')" class="btn btn-sm btn-outline-danger" href="?action=delete&entity=<?=$entity?>&id=<?=$r['id']?>" title="Hapus"><i class="bi bi-trash"></i></a>
+        <form method="post" action="?action=delete" style="display:inline" onsubmit="return confirm('Hapus data ini?')"><?=csrf_field()?><input type="hidden" name="entity" value="<?=$entity?>"><input type="hidden" name="id" value="<?=$r['id']?>"><button class="btn btn-sm btn-outline-danger" title="Hapus"><i class="bi bi-trash"></i></button></form>
       </td>
     </tr>
     <?php endforeach?>
@@ -144,7 +145,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
       </td>
       <td class="text-nowrap">
         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#userform_<?=$r['id']?>" title="Edit"><i class="bi bi-pencil"></i></button>
-        <a class="btn btn-sm btn-outline-danger" href="?action=delete&entity=users&id=<?=$r['id']?>" onclick="return confirm('Hapus user ini?')" title="Hapus"><i class="bi bi-trash"></i></a>
+        <form method="post" action="?action=delete" style="display:inline" onsubmit="return confirm('Hapus user ini?')"><?=csrf_field()?><input type="hidden" name="entity" value="users"><input type="hidden" name="id" value="<?=$r['id']?>"><button class="btn btn-sm btn-outline-danger" title="Hapus"><i class="bi bi-trash"></i></button></form>
       </td>
     </tr>
     <?php endforeach?>
@@ -213,7 +214,9 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
       <td><?=e($r['type'])?></td>
       <td><?=e(mb_strimwidth($r['question'],0,80,'...'))?></td>
       <td><?=$r['weight']?></td>
-      <td><a class="btn btn-sm btn-outline-danger" href="?action=delete&entity=questions&id=<?=$r['id']?>" onclick="return confirm('Hapus soal?')"><i class="bi bi-trash"></i></a></td>
+      <td><form method="post" action="?action=delete" style="display:inline" onsubmit="return confirm('Hapus soal?')"><?=csrf_field()?><input type="hidden" name="entity" value="questions"><input type="hidden" name="id" value="<?=$r['id']?>"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#qedit_<?=$r['id']?>" title="Edit"><i class="bi bi-pencil"></i></button>
+      </td>
     </tr>
     <?php endforeach?>
     </tbody>
@@ -236,6 +239,33 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   <?php endforeach?>
 </div>
 <?php modal('qform','Buat Soal',ob_get_clean());?>
+
+<?php foreach($rows as $r):
+  $choices=q('SELECT * FROM choices WHERE question_id=? ORDER BY label',[$r['id']])->fetchAll(PDO::FETCH_ASSOC);
+  $correct=q('SELECT label FROM choices WHERE question_id=? AND is_correct=1',[$r['id']])->fetchColumn();
+?>
+<?php ob_start();?>
+<input type="hidden" name="action" value="question_save">
+<input type="hidden" name="id" value="<?=$r['id']?>">
+<label class="form-label">Mata Pelajaran</label>
+<select name="subject_id" required class="form-select"><?=opts('subjects',$r['subject_id'])?></select>
+<label class="form-label mt-2">Jenis</label>
+<select name="type" class="form-select qtype-edit" data-target="choices_<?=$r['id']?>"><option value="multiple" <?=$r['type']==='multiple'?'selected':''?>>Pilihan Ganda</option><option value="essay" <?=$r['type']==='essay'?'selected':''?>>Essay</option></select>
+<label class="form-label mt-2">Pertanyaan</label>
+<textarea name="question" required class="form-control"><?=e($r['question'])?></textarea>
+<label class="form-label mt-2">Bobot</label>
+<input name="weight" type="number" step=".01" value="<?=$r['weight']?>" class="form-control">
+<div id="choices_<?=$r['id']?>" style="<?=$r['type']==='essay'?'display:none':''?>">
+  <label class="form-label mt-3">Pilihan jawaban (centang jawaban benar)</label>
+  <?php foreach(['A','B','C','D','E'] as $l):
+    $txt=''; $chk='';
+    foreach($choices as $c){if($c['label']===$l){$txt=$c['choice_text'];if($c['is_correct'])$chk='checked';break;}}
+  ?>
+  <div class="input-group mb-2"><span class="input-group-text"><input type="radio" name="correct" value="<?=$l?>" <?=$chk?:($l==='A'?'checked':'')?>></span><span class="input-group-text"><?=$l?></span><input name="choice_<?=$l?>" class="form-control" value="<?=e($txt)?>" <?=$l!=='E'?'required':''?>></div>
+  <?php endforeach?>
+</div>
+<?php modal('qedit_'.$r['id'],'Edit Soal',ob_get_clean());?>
+<?php endforeach?>
 
 <?php elseif($page==='exams'):
   role('Admin','Guru');
@@ -266,7 +296,8 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
         </form>
       </td>
       <td>
-        <a class="btn btn-sm btn-outline-danger" href="?action=delete&entity=exams&id=<?=$r['id']?>" onclick="return confirm('Hapus ujian ini?')"><i class="bi bi-trash"></i></a>
+        <form method="post" action="?action=delete" style="display:inline" onsubmit="return confirm('Hapus ujian ini?')"><?=csrf_field()?><input type="hidden" name="entity" value="exams"><input type="hidden" name="id" value="<?=$r['id']?>"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#eedit_<?=$r['id']?>" title="Edit"><i class="bi bi-pencil"></i></button>
       </td>
     </tr>
     <?php endforeach?>
@@ -308,6 +339,44 @@ if($tid){
   <div class="col-md-4"><label class="form-label">Selesai</label><input name="ends_at" type="datetime-local" class="form-control"></div>
 </div>
 <?php modal('eform','Buat Ujian',ob_get_clean());?>
+
+<?php foreach($rows as $r):
+  $eq=q('SELECT question_id FROM exam_questions WHERE exam_id=?',[$r['id']])->fetchAll(PDO::FETCH_COLUMN);
+  $sc=q('SELECT * FROM schedules WHERE exam_id=? LIMIT 1',[$r['id']])->fetch(PDO::FETCH_ASSOC);
+  if($tid){$editQ=q('SELECT q.id,q.question,s.name FROM questions q JOIN subjects s ON s.id=q.subject_id WHERE q.teacher_id=? ORDER BY q.id DESC',[$tid])->fetchAll(PDO::FETCH_ASSOC);}
+  else{$editQ=q('SELECT q.id,q.question,s.name FROM questions q JOIN subjects s ON s.id=q.subject_id ORDER BY q.id DESC')->fetchAll(PDO::FETCH_ASSOC);}
+?>
+<?php ob_start();?>
+<input type="hidden" name="action" value="exam_save">
+<input type="hidden" name="id" value="<?=$r['id']?>">
+<label class="form-label">Judul Ujian</label>
+<input name="title" required class="form-control" value="<?=e($r['title'])?>">
+<label class="form-label mt-2">Mata Pelajaran</label>
+<select name="subject_id" class="form-select"><?=opts('subjects',$r['subject_id'])?></select>
+<label class="form-label mt-2">Deskripsi</label>
+<textarea name="description" class="form-control"><?=e($r['description'])?></textarea>
+<div class="row mt-2">
+  <div class="col"><label class="form-label">Durasi (menit)</label><input name="duration" type="number" value="<?=$r['duration']?>" required class="form-control"></div>
+  <div class="col"><label class="form-label">Token</label><input name="token" class="form-control" value="<?=e($r['token'])?>"></div>
+</div>
+<div class="mt-3">
+  <label><input type="checkbox" name="random_questions" <?=$r['random_questions']?'checked':''?>> Acak soal</label>
+  <label class="ms-3"><input type="checkbox" name="random_choices" <?=$r['random_choices']?'checked':''?>> Acak pilihan</label>
+  <label class="ms-3"><input type="checkbox" name="show_score" <?=$r['show_score']?'checked':''?>> Tampilkan nilai</label>
+</div>
+<label class="form-label mt-3">Pilih Soal</label>
+<div class="question-picker">
+<?php foreach($editQ as $x):?>
+<label><input type="checkbox" name="questions[]" value="<?=$x['id']?>" <?=in_array($x['id'],$eq)?'checked':''?>> [<?=e($x['name'])?>] <?=e(mb_strimwidth($x['question'],0,60,'...'))?></label>
+<?php endforeach?>
+</div>
+<div class="row mt-3">
+  <div class="col-md-4"><label class="form-label">Kelas</label><select name="schedule_class" class="form-select"><option value="">-</option><?=opts('classes',$sc['class_id']??'')?></select></div>
+  <div class="col-md-4"><label class="form-label">Mulai</label><input name="starts_at" type="datetime-local" class="form-control" value="<?=isset($sc['starts_at'])?str_replace(' ','T',$sc['starts_at']):''?>"></div>
+  <div class="col-md-4"><label class="form-label">Selesai</label><input name="ends_at" type="datetime-local" class="form-control" value="<?=isset($sc['ends_at'])?str_replace(' ','T',$sc['ends_at']):''?>"></div>
+</div>
+<?php modal('eedit_'.$r['id'],'Edit Ujian',ob_get_clean());?>
+<?php endforeach?>
 
 <?php elseif($page==='student'):
   role('Siswa');
@@ -424,6 +493,122 @@ if($tid){
   </table>
 </div>
 
+<?php elseif($page==='profile'):
+  $tid=$u['role']==='Guru'?q('SELECT id,nip,phone FROM teachers WHERE user_id=?',[$u['id']])->fetch(PDO::FETCH_ASSOC):null;
+  $sid=$u['role']==='Siswa'?q('SELECT id,nis,class_id FROM students WHERE user_id=?',[$u['id']])->fetch(PDO::FETCH_ASSOC):null;
+?>
+<div class="panel mb-3">
+  <h5>Profil Saya</h5>
+  <table class="table" style="max-width:500px">
+    <tr><td>Nama</td><td><?=e($u['name'])?></td></tr>
+    <tr><td>Email</td><td><?=e($u['email'])?></td></tr>
+    <tr><td>Role</td><td><span class="badge text-bg-primary"><?=e($u['role'])?></span></td></tr>
+    <?php if($tid):?><tr><td>NIP</td><td><?=e($tid['nip'])?></td></tr>
+    <tr><td>Telepon</td><td><?=e($tid['phone']??'-')?></td></tr><?php endif?>
+    <?php if($sid):?><tr><td>NIS</td><td><?=e($sid['nis'])?></td></tr>
+    <tr><td>Kelas</td><td><?=e(q('SELECT name FROM classes WHERE id=?',[$sid['class_id']])->fetchColumn()?:'-')?></td></tr><?php endif?>
+  </table>
+</div>
+<div class="panel">
+  <h5>Ganti Password</h5>
+  <form method="post" action="?action=password_save" class="row g-3" style="max-width:400px">
+    <?=csrf_field()?>
+    <div class="col-12"><label class="form-label">Password Lama</label><input type="password" name="old_password" required class="form-control"></div>
+    <div class="col-12"><label class="form-label">Password Baru (min 6 karakter)</label><input type="password" name="new_password" required class="form-control" minlength="6"></div>
+    <div class="col-12"><label class="form-label">Konfirmasi Password Baru</label><input type="password" name="confirm_password" required class="form-control" minlength="6"></div>
+    <div class="col-12"><button class="btn btn-primary">Simpan Password</button></div>
+  </form>
+</div>
+
+<?php elseif($page==='settings'):
+  role('Admin');
+  $rows=q('SELECT * FROM settings ORDER BY setting_key')->fetchAll(PDO::FETCH_ASSOC);
+?>
+<div class="panel">
+  <h5>Pengaturan Aplikasi</h5>
+  <form method="post" action="?action=settings_save" style="max-width:500px">
+    <?=csrf_field()?>
+    <?php foreach($rows as $s):?>
+    <label class="form-label mt-2"><?=e(ucfirst(str_replace('_',' ',$s['setting_key'])))?></label>
+    <input name="key_<?=$s['setting_key']?>" class="form-control" value="<?=e($s['setting_value'])?>">
+    <?php endforeach?>
+    <button class="btn btn-primary mt-3">Simpan Pengaturan</button>
+  </form>
+</div>
+
+<?php elseif($page==='logs'):
+  role('Admin');
+  $logs=q('SELECT l.*,u.name user FROM logs l LEFT JOIN users u ON u.id=l.user_id ORDER BY l.id DESC LIMIT 500')->fetchAll(PDO::FETCH_ASSOC);
+?>
+<div class="panel table-responsive">
+  <h5>Log Aktivitas</h5>
+  <table class="table data-table">
+    <thead><tr><th>ID</th><th>User</th><th>Aksi</th><th>Waktu</th></tr></thead>
+    <tbody>
+    <?php foreach($logs as $l):?>
+    <tr><td><?=$l['id']?></td><td><?=e($l['user']??'-')?></td><td><?=e($l['action'])?></td><td><?=$l['created_at']?></td></tr>
+    <?php endforeach?>
+    </tbody>
+  </table>
+</div>
+
+<?php elseif($page==='grading'):
+  role('Admin','Guru');
+  $tid=$u['role']==='Guru'?q('SELECT id FROM teachers WHERE user_id=?',[$u['id']])->fetchColumn():null;
+  if($tid){
+    $exams=q('SELECT id,title FROM exams WHERE teacher_id=? ORDER BY title',[$tid])->fetchAll(PDO::FETCH_ASSOC);
+  } else {
+    $exams=q('SELECT id,title FROM exams ORDER BY title')->fetchAll(PDO::FETCH_ASSOC);
+  }
+  $eid=(int)($_GET['exam_id']??0);
+  $uid=(int)($_GET['student_id']??0);
+  if($eid && $uid):
+    $result=q('SELECT r.*,u.name siswa,e.title FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id WHERE r.exam_id=? AND s.user_id=? AND r.status="submitted"',[$eid,$uid])->fetch(PDO::FETCH_ASSOC);
+    if(!$result):?><div class="panel"><p class="text-muted">Belum ada jawaban essay yang perlu dikoreksi.</p></div>
+    <?php else:
+      $essays=q('SELECT q.id,q.question,q.weight,a.answer_text,a.score a_score FROM exam_questions eq JOIN questions q ON q.id=eq.question_id LEFT JOIN answers a ON a.question_id=q.id AND a.result_id=? WHERE q.type="essay" AND eq.exam_id=?',[$result['id'],$eid])->fetchAll(PDO::FETCH_ASSOC);
+    ?>
+    <div class="panel mb-3"><h5><?=e($result['title'])?> – <?=e($result['siswa'])?></h5></div>
+    <form method="post" action="?action=grade_save">
+      <?=csrf_field()?>
+      <input type="hidden" name="result_id" value="<?=$result['id']?>">
+      <?php foreach($essays as $e):?>
+      <div class="panel mb-2">
+        <p><strong>Soal:</strong> <?=nl2br(e($e['question']))?></p>
+        <p><strong>Bobot:</strong> <?=$e['weight']?></p>
+        <p><strong>Jawaban siswa:</strong></p>
+        <blockquote class="border-start border-3 ps-3 text-muted"><?=nl2br(e($e['answer_text']??'-'))?></blockquote>
+        <label class="form-label">Skor (0 – <?=$e['weight']?>)</label>
+        <input type="number" step=".01" name="score_<?=$e['id']?>" class="form-control" style="max-width:150px" value="<?=$e['a_score']??''?>" min="0" max="<?=$e['weight']?>">
+      </div>
+      <?php endforeach?>
+      <button class="btn btn-success mt-2">Simpan Nilai Essay</button>
+      <a href="?page=grading&exam_id=<?=$eid?>" class="btn btn-light mt-2">Kembali</a>
+    </form>
+    <?php endif;
+  else:?>
+<div class="panel">
+  <h5>Koreksi Jawaban Essay</h5>
+  <form class="row g-3 mb-3" method="get">
+    <input type="hidden" name="page" value="grading">
+    <div class="col-md-4"><label class="form-label">Pilih Ujian</label><select name="exam_id" class="form-select" onchange="this.form.submit()"><option value="">- Pilih Ujian -</option><?php foreach($exams as $x):?><option value="<?=$x['id']?>" <?=$eid==$x['id']?'selected':''?>><?=e($x['title'])?></option><?php endforeach?></select></div>
+  </form>
+  <?php if($eid):
+    $students=q("SELECT DISTINCT u.id user_id,u.name,r.id result_id,r.status FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id WHERE r.exam_id=? AND r.status='submitted'".($tid?" AND e.teacher_id=$tid":'')." ORDER BY u.name",[$eid])->fetchAll(PDO::FETCH_ASSOC);
+  ?>
+  <table class="table data-table">
+    <thead><tr><th>Siswa</th><th>Status</th><th>Aksi</th></tr></thead>
+    <tbody>
+    <?php if(!$students):?><tr><td colspan="3" class="text-muted">Tidak ada ujian dengan status "Dikumpulkan" yang perlu dikoreksi.</td></tr><?php endif?>
+    <?php foreach($students as $s):?>
+    <tr><td><?=e($s['name'])?></td><td><span class="badge badge-info">Dikumpulkan</span></td><td><a href="?page=grading&exam_id=<?=$eid?>&student_id=<?=$s['user_id']?>" class="btn btn-sm btn-primary">Koreksi</a></td></tr>
+    <?php endforeach?>
+    </tbody>
+  </table>
+  <?php endif?>
+</div>
+<?php endif;?>
+
 <?php else:?>
 <div class="panel">Halaman tidak ditemukan.</div>
 <?php endif;?>
@@ -433,6 +618,9 @@ if($tid){
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
 <script>$('.data-table').DataTable({language:{search:'Cari:',lengthMenu:'Tampilkan _MENU_ data',info:'Menampilkan _START_–_END_ dari _TOTAL_ data',zeroRecords:'Tidak ada data'}})</script>
+<script>
+document.querySelectorAll('.qtype-edit').forEach(el=>el.addEventListener('change',function(){document.getElementById(this.dataset.target).style.display=this.value==='essay'?'none':'block'}));
+</script>
 <script src="assets/js/app.js"></script>
 </body></html>
 <?php endif?>
