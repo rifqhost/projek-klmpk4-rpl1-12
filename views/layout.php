@@ -25,7 +25,6 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
     <a class="<?=($page===$k?'active':'')?>" href="?page=<?=$k?>"><i class="bi <?=$v[1]?>"></i><?=$v[0]?></a>
     <?php endforeach?>
   </nav>
-  <a class="logout" id="darkModeToggle" href="#"><i class="bi bi-moon-stars"></i> <span>Tema Gelap</span></a>
   <a class="logout" href="?action=logout"><i class="bi bi-box-arrow-left"></i> Keluar</a>
 </aside>
 <div class="sidebar-backdrop" onclick="document.querySelector('.sidebar').classList.remove('open')"></div>
@@ -33,7 +32,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   <header>
     <button class="btn d-md-none" onclick="document.querySelector('.sidebar').classList.toggle('open')"><i class="bi bi-list"></i></button>
     <div><h4><?=e($nav[$page][0]??'Halaman')?></h4><small><?=date('l, d F Y')?></small></div>
-    <div class="ms-auto"><i class="bi bi-bell"></i></div>
+    <div class="ms-auto d-flex align-items-center gap-2"><a href="#" id="darkModeToggle" title="Tema Gelap"><i class="bi bi-moon-stars"></i></a><i class="bi bi-bell"></i></div>
   </header>
   <?php if($flash):?><div class="alert alert-<?=$flash[0]?> alert-dismissible fade show"><?=e($flash[1])?><button class="btn-close" data-bs-dismiss="alert"></button></div><?php endif?>
 

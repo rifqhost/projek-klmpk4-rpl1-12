@@ -131,8 +131,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(darkToggle){
     function setDark(enabled){
       document.documentElement.classList.toggle('dark',enabled);
-      darkToggle.querySelector('i').className=enabled?'bi bi-sun':'bi bi-moon-stars';
-      darkToggle.querySelector('span').textContent=enabled?'Tema Terang':'Tema Gelap';
+      darkToggle.innerHTML=enabled?'<i class="bi bi-sun"></i>':'<i class="bi bi-moon-stars"></i>';
+      darkToggle.title=enabled?'Tema Terang':'Tema Gelap';
       try{localStorage.setItem('darkMode',enabled?'1':'0')}catch(e){}
     }
     try{setDark(localStorage.getItem('darkMode')==='1')}catch(e){}
