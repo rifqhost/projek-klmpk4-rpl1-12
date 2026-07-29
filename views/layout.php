@@ -20,6 +20,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
       if($k==='student' && $u['role']!=='Siswa') continue;
       if($k==='grading' && $u['role']==='Siswa') continue;
       if(in_array($k,['settings','logs','users','manage']) && $u['role']!=='Admin') continue;
+      if(in_array($k,['questions','exams','reports']) && $u['role']==='Siswa') continue;
     ?>
     <a class="<?=($page===$k?'active':'')?>" href="?page=<?=$k?>"><i class="bi <?=$v[1]?>"></i><?=$v[0]?></a>
     <?php endforeach?>
