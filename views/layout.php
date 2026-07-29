@@ -696,16 +696,17 @@ if($tid){
   </form>
   <?php if($eid):
     $students=q("SELECT DISTINCT u.id user_id,u.name,r.id result_id,r.status FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id WHERE r.exam_id=? AND r.status='submitted'".($tid?" AND e.teacher_id=$tid":'')." ORDER BY u.name",[$eid])->fetchAll(PDO::FETCH_ASSOC);
-  ?>
-  <table class="table data-table">
-    <thead><tr><th>Siswa</th><th>Status</th><th>Aksi</th></tr></thead>
-    <tbody>
-    <?php if(!$students):?><tr><td colspan="3" class="text-muted">Tidak ada ujian dengan status "Dikumpulkan" yang perlu dikoreksi.</td></tr><?php endif?>
-    <?php foreach($students as $s):?>
-    <tr><td><?=e($s['name'])?></td><td><span class="badge badge-info">Dikumpulkan</span></td><td><a href="?page=grading&exam_id=<?=$eid?>&student_id=<?=$s['user_id']?>" class="btn btn-sm btn-primary">Koreksi</a></td></tr>
-    <?php endforeach?>
-    </tbody>
-  </table>
+    if($students):?>
+    <table class="table data-table">
+      <thead><tr><th>Siswa</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>
+      <?php foreach($students as $s):?>
+      <tr><td><?=e($s['name'])?></td><td><span class="badge badge-info">Dikumpulkan</span></td><td><a href="?page=grading&exam_id=<?=$eid?>&student_id=<?=$s['user_id']?>" class="btn btn-sm btn-primary">Koreksi</a></td></tr>
+      <?php endforeach?>
+      </tbody>
+    </table>
+    <?php else:?><p class="text-muted">Tidak ada ujian dengan status "Dikumpulkan" yang perlu dikoreksi.</p>
+    <?php endif?>
   <?php endif?>
 </div>
 <?php endif;?>
