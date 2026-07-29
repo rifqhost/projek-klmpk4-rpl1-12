@@ -124,12 +124,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   const darkToggle=document.getElementById('darkModeToggle');
   if(darkToggle){
     function setDark(enabled){
-      document.documentElement.classList.toggle('dark',enabled);
-      darkToggle.innerHTML=enabled?'<i class="bi bi-sun"></i>':'<i class="bi bi-moon-stars"></i>';
+      if(enabled){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('dark');}else{document.documentElement.removeAttribute('data-theme');document.documentElement.classList.remove('dark');}
+      darkToggle.innerHTML=enabled?'<i class="bi bi-sun-fill"></i>':'<i class="bi bi-moon-stars-fill"></i>';
       darkToggle.title=enabled?'Tema Terang':'Tema Gelap';
       try{localStorage.setItem('darkMode',enabled?'1':'0')}catch(e){}
     }
-    try{setDark(localStorage.getItem('darkMode')==='1')}catch(e){}
+    try{const s=localStorage.getItem('darkMode');if(s==='1')setDark(true);}catch(e){}
     darkToggle.addEventListener('click',e=>{e.preventDefault();setDark(!document.documentElement.classList.contains('dark'))});
   }
 });

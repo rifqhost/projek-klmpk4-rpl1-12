@@ -1424,19 +1424,21 @@ textarea.form-control.answer {
    DARK MODE
    ============================================ */
 html.dark,
-html.dark body {
-  --cb-bg: #0f172a;
-  --cb-card: #1e293b;
-  --cb-text: #f1f5f9;
-  --cb-text-dim: #94a3b8;
-  --cb-text-faint: #64748b;
-  --cb-border: #334155;
-  --cb-border-soft: #1e293b;
-  --cb-navy: #0f172a;
-  --cb-navy-hover: #1e293b;
-  --cb-primary-ring: rgba(99,102,241,.25);
-  background: #0f172a;
-  color: #f1f5f9;
+html[data-theme="dark"],
+html.dark body,
+html[data-theme="dark"] body {
+  --cb-bg: #0f172a !important;
+  --cb-card: #1e293b !important;
+  --cb-text: #f1f5f9 !important;
+  --cb-text-dim: #94a3b8 !important;
+  --cb-text-faint: #64748b !important;
+  --cb-border: #334155 !important;
+  --cb-border-soft: #1e293b !important;
+  --cb-navy: #0f172a !important;
+  --cb-navy-hover: #1e293b !important;
+  --cb-primary-ring: rgba(99,102,241,.25) !important;
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 html.dark .panel,
 html.dark .stat-card,
