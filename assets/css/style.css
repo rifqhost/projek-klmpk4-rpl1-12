@@ -829,6 +829,22 @@ body {
   font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
 }
 
+.warning-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fbbf24;
+  background: rgba(251,191,36,.12);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.warning-count i {
+  font-size: 15px;
+}
+
 .question {
   margin-bottom: 10px;
 }

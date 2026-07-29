@@ -457,8 +457,12 @@ if($tid){
 ?>
 <div class="exam-top">
   <div><small>UJIAN BERLANGSUNG</small><h5><?=e($result['title'])?></h5></div>
-  <div class="timer" id="timer" data-end="<?=strtotime($result['started_at'])+$result['duration']*60?>">--:--</div>
+  <div class="d-flex align-items-center gap-3">
+    <div class="warning-count" id="warningCount" data-max="<?=q('SELECT setting_value FROM settings WHERE setting_key="max_warnings"')->fetchColumn()?:3?>"><i class="bi bi-shield-exclamation"></i> <span>0</span></div>
+    <div class="timer" id="timer" data-end="<?=strtotime($result['started_at'])+$result['duration']*60?>">--:--</div>
+  </div>
 </div>
+<div id="cheatWarning" class="alert alert-danger d-none align-items-center gap-2 mb-2 py-2" style="display:none"><i class="bi bi-exclamation-triangle"></i> <span></span></div>
 <form id="examForm" method="post" action="?action=submit">
   <?=csrf_field()?>
   <input type="hidden" name="result" value="<?=$rid?>">

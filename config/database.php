@@ -28,14 +28,15 @@ function install_database(PDO $p): void {
       "CREATE TABLE IF NOT EXISTS exam_results (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, exam_id INT UNSIGNED NOT NULL, student_id INT UNSIGNED NOT NULL, started_at DATETIME NOT NULL, submitted_at DATETIME NULL, score DECIMAL(6,2) NULL, status ENUM('in_progress','submitted','graded') DEFAULT 'in_progress', UNIQUE(exam_id,student_id), FOREIGN KEY(exam_id) REFERENCES exams(id) ON DELETE CASCADE, FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE) ENGINE=InnoDB",
       "CREATE TABLE IF NOT EXISTS answers (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, result_id INT UNSIGNED NOT NULL, question_id INT UNSIGNED NOT NULL, answer_text TEXT NULL, is_correct TINYINT(1) NULL, score DECIMAL(6,2) NULL, UNIQUE(result_id,question_id), FOREIGN KEY(result_id) REFERENCES exam_results(id) ON DELETE CASCADE, FOREIGN KEY(question_id) REFERENCES questions(id) ON DELETE CASCADE) ENGINE=InnoDB",
       "CREATE TABLE IF NOT EXISTS settings (setting_key VARCHAR(80) PRIMARY KEY, setting_value TEXT NOT NULL) ENGINE=InnoDB",
-      "CREATE TABLE IF NOT EXISTS logs (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, user_id INT UNSIGNED NULL, action VARCHAR(150) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL) ENGINE=InnoDB"
+      "CREATE TABLE IF NOT EXISTS logs (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, user_id INT UNSIGNED NULL, action VARCHAR(150) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL) ENGINE=InnoDB",
+      "CREATE TABLE IF NOT EXISTS violations (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, result_id INT UNSIGNED NOT NULL, type VARCHAR(50) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(result_id) REFERENCES exam_results(id) ON DELETE CASCADE) ENGINE=InnoDB"
     ];
     foreach($tables as $sql) $p->exec($sql);
     $p->exec("INSERT IGNORE INTO roles (id,name) VALUES (1,'Admin'),(2,'Guru'),(3,'Siswa')");
     $p->exec("INSERT IGNORE INTO academic_years (id,name,active) VALUES (1,'2026/2027',1)");
     $p->exec("INSERT IGNORE INTO majors (id,name,code) VALUES (1,'Rekayasa Perangkat Lunak','RPL')");
     $p->exec("INSERT IGNORE INTO classes (id,name,major_id,academic_year_id) VALUES (1,'XII RPL 1',1,1)");
-    $p->exec("INSERT IGNORE INTO settings VALUES ('school_name','Sekolah Digital'),('school_address','Indonesia'),('exam_warning','Pastikan koneksi internet stabil selama ujian.')");
+    $p->exec("INSERT IGNORE INTO settings VALUES ('school_name','Sekolah Digital'),('school_address','Indonesia'),('exam_warning','Pastikan koneksi internet stabil selama ujian.'),('max_warnings','3')");
     $check=$p->prepare('SELECT id FROM users WHERE email=?'); $check->execute(['admin@school.test']);
     if(!$check->fetch()) { $s=$p->prepare('INSERT INTO users(role_id,name,email,password) VALUES(1,?,?,?)'); $s->execute(['Administrator','admin@school.test',password_hash('admin123',PASSWORD_DEFAULT)]); }
 }
