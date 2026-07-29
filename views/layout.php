@@ -25,6 +25,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
     <a class="<?=($page===$k?'active':'')?>" href="?page=<?=$k?>"><i class="bi <?=$v[1]?>"></i><?=$v[0]?></a>
     <?php endforeach?>
   </nav>
+  <a class="logout" id="darkModeToggle" href="#"><i class="bi bi-moon-stars"></i> <span>Tema Gelap</span></a>
   <a class="logout" href="?action=logout"><i class="bi bi-box-arrow-left"></i> Keluar</a>
 </aside>
 <div class="sidebar-backdrop" onclick="document.querySelector('.sidebar').classList.remove('open')"></div>
@@ -428,7 +429,7 @@ if($tid){
 <div class="panel">
   <h5>Riwayat Ujian</h5>
   <table class="table">
-    <thead><tr><th>Ujian</th><th>Status</th><th>Nilai</th></tr></thead>
+    <thead><tr><th>Ujian</th><th>Status</th><th>Nilai</th><th>Aksi</th></tr></thead>
     <tbody>
     <?php foreach($history as $x):?>
     <tr>
@@ -443,6 +444,7 @@ if($tid){
         <?php endif?>
       </td>
       <td><?=$x['score']??'-'?></td>
+      <td><?php if($x['status']!=='in_progress'):?><a href="?page=review&result=<?=$x['id']?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a><?php endif?></td>
     </tr>
     <?php endforeach?>
     </tbody>
@@ -452,39 +454,108 @@ if($tid){
 <?php elseif($page==='attempt'):
   role('Siswa');
   $rid=(int)$_GET['result'];
-  $result=q('SELECT r.*,e.title,e.duration,e.random_questions,e.random_choices FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN students s ON s.id=r.student_id WHERE r.id=? AND s.user_id=?',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
+  $result=q('SELECT r.*,e.title,e.duration,e.random_questions,e.random_choices,e.show_score FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN students s ON s.id=r.student_id WHERE r.id=? AND s.user_id=?',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
   if(!$result||$result['status']!=='in_progress')redirect('page=student');
-  $qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=?'.($result['random_questions']?' ORDER BY RAND()':' ORDER BY q.id'),[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);
+  $qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=?'.($result['random_questions']?' ORDER BY RAND()':' ORDER BY q.id'),[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC); $totalQ=count($qs);
+  $answerData=[]; foreach($qs as $x){$ans=q('SELECT answer_text,flagged FROM answers WHERE result_id=? AND question_id=?',[$rid,$x['id']])->fetch(PDO::FETCH_ASSOC);$answerData[$x['id']]=['answer'=>$ans['answer_text']??'','flagged'=>(int)($ans['flagged']??0)];}
 ?>
-<div class="exam-top">
-  <div><small>UJIAN BERLANGSUNG</small><h5><?=e($result['title'])?></h5></div>
-  <div class="d-flex align-items-center gap-3">
-    <div class="warning-count" id="warningCount" data-max="<?=q('SELECT setting_value FROM settings WHERE setting_key="max_warnings"')->fetchColumn()?:3?>"><i class="bi bi-shield-exclamation"></i> <span>0</span></div>
-    <div class="timer" id="timer" data-end="<?=strtotime($result['started_at'])+$result['duration']*60?>">--:--</div>
+<div class="exam-layout">
+  <div class="exam-main">
+    <div class="exam-top">
+      <div><small>UJIAN BERLANGSUNG</small><h5><?=e($result['title'])?></h5></div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="warning-count" id="warningCount" data-max="<?=q('SELECT setting_value FROM settings WHERE setting_key="max_warnings"')->fetchColumn()?:3?>"><i class="bi bi-shield-exclamation"></i> <span>0</span></div>
+        <div class="timer" id="timer" data-end="<?=strtotime($result['started_at'])+$result['duration']*60?>" data-duration="<?=$result['duration']?>">--:--</div>
+      </div>
+    </div>
+    <div id="cheatWarning" class="alert alert-danger d-none align-items-center gap-2 mb-2 py-2"><i class="bi bi-exclamation-triangle"></i> <span></span></div>
+    <div id="timeWarning" class="alert alert-warning d-none align-items-center gap-2 mb-2 py-2"><i class="bi bi-clock"></i> <span></span></div>
+    <form id="examForm" method="post" action="?action=submit">
+      <?=csrf_field()?>
+      <input type="hidden" name="result" value="<?=$rid?>">
+      <?php foreach($qs as $n=>$x):
+        $ad=$answerData[$x['id']]; $ans=$ad['answer']; $flag=$ad['flagged'];
+      ?>
+      <section class="panel question" data-q="<?=$x['id']?>" data-no="<?=$n+1?>">
+        <div class="d-flex justify-content-between align-items-start">
+          <span class="q-num">Soal <?=$n+1?></span>
+          <button type="button" class="btn btn-sm btn-outline-warning ragu-btn <?=$flag?'active':''?>" data-question="<?=$x['id']?>" title="Tandai ragu-ragu"><i class="bi bi-flag<?=$flag?'-fill':''?>"></i> <span>Ragu</span></button>
+        </div>
+        <p><?=nl2br(e($x['question']))?></p>
+        <?php if($x['type']==='essay'):?>
+          <textarea class="form-control answer" data-question="<?=$x['id']?>" rows="5"><?=e($ans)?></textarea>
+        <?php else:
+          $choices=q('SELECT * FROM choices WHERE question_id=? '.($result['random_choices']?'ORDER BY RAND()':'ORDER BY label'),[$x['id']])->fetchAll(PDO::FETCH_ASSOC);
+          foreach($choices as $c):?>
+          <label class="choice"><input class="answer" data-question="<?=$x['id']?>" type="radio" name="a<?=$x['id']?>" value="<?=$c['label']?>" <?=$ans===$c['label']?'checked':''?>> <b><?=$c['label']?>.</b> <?=e($c['choice_text'])?></label>
+        <?php endforeach;
+        endif?>
+      </section>
+      <?php endforeach?>
+      <button class="btn btn-success btn-lg mb-5" onclick="return confirm('Kumpulkan jawaban sekarang?')"><i class="bi bi-send"></i> Kumpulkan Ujian</button>
+    </form>
+  </div>
+  <div class="exam-nav" id="examNav">
+    <div class="exam-nav-header">Navigasi Soal</div>
+    <div class="exam-nav-grid">
+      <?php foreach($qs as $n=>$x):
+        $ad=$answerData[$x['id']]; $cls='unanswered'; $title='Belum dijawab';
+        if($ad['flagged']){$cls='flagged';$title='Ditandai ragu';}
+        if($ad['answer']!==''){$cls=$cls==='flagged'?'flagged':($x['type']==='essay'&&$ad['answer']!==''?'answered':'answered');$title=$ad['flagged']?'Terjawab & ditandai':'Terjawab';}
+      ?>
+      <a href="#q<?=$x['id']?>" class="nav-q <?=$cls?>" title="<?=$title?>" data-q="<?=$x['id']?>"><?=$n+1?></a>
+      <?php endforeach?>
+    </div>
+    <div class="exam-nav-legend">
+      <span><i class="bi bi-check-circle-fill text-success"></i> Terjawab</span>
+      <span><i class="bi bi-flag-fill text-warning"></i> Ragu</span>
+      <span><i class="bi bi-circle text-secondary"></i> Kosong</span>
+    </div>
   </div>
 </div>
-<div id="cheatWarning" class="alert alert-danger d-none align-items-center gap-2 mb-2 py-2" style="display:none"><i class="bi bi-exclamation-triangle"></i> <span></span></div>
-<form id="examForm" method="post" action="?action=submit">
-  <?=csrf_field()?>
-  <input type="hidden" name="result" value="<?=$rid?>">
-  <?php foreach($qs as $n=>$x):
-    $ans=q('SELECT answer_text FROM answers WHERE result_id=? AND question_id=?',[$rid,$x['id']])->fetchColumn();
-  ?>
-  <section class="panel question" data-q="<?=$x['id']?>">
-    <span class="q-num">Soal <?=$n+1?></span>
-    <p><?=nl2br(e($x['question']))?></p>
-    <?php if($x['type']==='essay'):?>
-      <textarea class="form-control answer" data-question="<?=$x['id']?>" rows="5"><?=e($ans)?></textarea>
-    <?php else:
-      $choices=q('SELECT * FROM choices WHERE question_id=? '.($result['random_choices']?'ORDER BY RAND()':'ORDER BY label'),[$x['id']])->fetchAll(PDO::FETCH_ASSOC);
-      foreach($choices as $c):?>
-      <label class="choice"><input class="answer" data-question="<?=$x['id']?>" type="radio" name="a<?=$x['id']?>" value="<?=$c['label']?>" <?=$ans===$c['label']?'checked':''?>> <b><?=$c['label']?>.</b> <?=e($c['choice_text'])?></label>
-      <?php endforeach;
-    endif?>
-  </section>
-  <?php endforeach?>
-  <button class="btn btn-success btn-lg mb-5" onclick="return confirm('Kumpulkan jawaban sekarang?')"><i class="bi bi-send"></i> Kumpulkan Ujian</button>
-</form>
+
+<?php elseif($page==='review'):
+  role('Siswa');
+  $rid=(int)$_GET['result'];
+  $result=q('SELECT r.*,e.title,e.duration,e.show_score,s.name subject_name FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN subjects s ON s.id=e.subject_id JOIN students st ON st.id=r.student_id WHERE r.id=? AND st.user_id=? AND r.status IN("submitted","graded")',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
+  if(!$result)redirect('page=student');
+  $qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=? ORDER BY q.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);
+?>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Review: <?=e($result['title'])?></h4>
+  <a href="?action=download_result&result=<?=$rid?>" class="btn btn-success btn-sm"><i class="bi bi-download"></i> Download Hasil</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="panel text-center"><small class="text-muted">Nilai</small><h3 class="mb-0"><?=$result['score']??'-'?></h3></div></div>
+  <div class="col-md-3"><div class="panel text-center"><small class="text-muted">Mapel</small><p class="mb-0 fw-semibold"><?=e($result['subject_name'])?></p></div></div>
+  <div class="col-md-3"><div class="panel text-center"><small class="text-muted">Durasi</small><p class="mb-0 fw-semibold"><?=$result['duration']?> menit</p></div></div>
+  <div class="col-md-3"><div class="panel text-center"><small class="text-muted">Status</small><p class="mb-0 fw-semibold"><?=$result['status']==='graded'?'Dinilai':'Menunggu Koreksi'?></p></div></div>
+</div>
+<?php foreach($qs as $n=>$x):
+  $a=q('SELECT a.*,c.label correct_label,c.choice_text correct_text FROM answers a LEFT JOIN choices c ON c.question_id=a.question_id AND c.is_correct=1 WHERE a.result_id=? AND a.question_id=?',[$rid,$x['id']])->fetch(PDO::FETCH_ASSOC);
+  $choices=$x['type']==='multiple'?q('SELECT * FROM choices WHERE question_id=? ORDER BY label',[$x['id']])->fetchAll(PDO::FETCH_ASSOC):[];
+?>
+<div class="panel question mb-2">
+  <span class="q-num">Soal <?=$n+1?></span>
+  <?php if($a && $a['is_correct']!==null):?><span class="badge ms-2 <?=$a['is_correct']?'badge-active':'badge-inactive'?>"><?=$a['is_correct']?'Benar':'Salah'?></span><?php endif?>
+  <p><?=nl2br(e($x['question']))?></p>
+  <?php if($x['type']==='multiple'):?>
+    <?php foreach($choices as $c):
+      $isSelected=$a&&$a['answer_text']===$c['label'];
+      $isCorrect=$c['is_correct'];
+    ?>
+    <div class="choice <?=$isCorrect?'choice-correct':''?> <?=$isSelected&&!$isCorrect?'choice-wrong':''?> <?=$isSelected?'choice-selected':''?>">
+      <input type="radio" disabled <?=$isSelected?'checked':''?>> <b><?=$c['label']?>.</b> <?=e($c['choice_text'])?>
+      <?php if($isCorrect):?><i class="bi bi-check-circle-fill text-success ms-auto"></i><?php elseif($isSelected):?><i class="bi bi-x-circle-fill text-danger ms-auto"></i><?php endif?>
+    </div>
+    <?php endforeach?>
+    <small class="text-muted">Jawaban benar: <b><?=e($a['correct_label']??'-')?></b></small>
+  <?php else:?>
+    <div class="border rounded p-3 bg-light"><small class="text-muted">Jawaban Anda:</small><p class="mb-0"><?=nl2br(e($a['answer_text']??'-'))?></p></div>
+    <?php if($a && $a['score']!==null):?><small class="text-muted">Skor: <b><?=$a['score']?></b> / <?=$x['weight']?></small><?php endif?>
+  <?php endif?>
+</div>
+<?php endforeach?>
 
 <?php elseif($page==='reports'):
   role('Admin','Guru');
