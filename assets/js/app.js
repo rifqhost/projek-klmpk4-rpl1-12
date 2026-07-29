@@ -121,15 +121,21 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
   });
 
-  const darkToggle=document.getElementById('darkModeToggle');
-  if(darkToggle){
-    function setDark(enabled){
-      if(enabled){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('dark');}else{document.documentElement.removeAttribute('data-theme');document.documentElement.classList.remove('dark');}
-      darkToggle.innerHTML=enabled?'<i class="bi bi-sun-fill"></i>':'<i class="bi bi-moon-stars-fill"></i>';
-      darkToggle.title=enabled?'Tema Terang':'Tema Gelap';
-      try{localStorage.setItem('darkMode',enabled?'1':'0')}catch(e){}
+  try{
+    const darkToggle=document.getElementById('darkModeToggle');
+    if(darkToggle){
+      function setDark(enabled){
+        try{
+          document.documentElement.classList.toggle('dark',enabled);
+          if(enabled) document.documentElement.setAttribute('data-theme','dark');
+          else document.documentElement.removeAttribute('data-theme');
+          darkToggle.innerHTML=enabled?'<i class="bi bi-sun-fill"></i>':'<i class="bi bi-moon-stars-fill"></i>';
+          darkToggle.title=enabled?'Tema Terang':'Tema Gelap';
+          localStorage.setItem('opencode-dark',enabled?'1':'0');
+        }catch(e){}
+      }
+      try{if(localStorage.getItem('opencode-dark')==='1')setDark(true);}catch(e){}
+      darkToggle.addEventListener('click',function(e){e.preventDefault();try{setDark(!document.documentElement.classList.contains('dark'))}catch(e){}});
     }
-    try{const s=localStorage.getItem('darkMode');if(s==='1')setDark(true);}catch(e){}
-    darkToggle.addEventListener('click',e=>{e.preventDefault();setDark(!document.documentElement.classList.contains('dark'))});
-  }
+  }catch(e){}
 });
