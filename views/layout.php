@@ -1,15 +1,15 @@
-<?php
+  <?php
 $u=user(); $flash=$_SESSION['flash']??null; unset($_SESSION['flash']);
 function opts(string $table,string $selected='',$label='name'):string{if($table==='teachers'){$s=q("SELECT t.id,u.name FROM teachers t JOIN users u ON u.id=t.user_id ORDER BY u.name")->fetchAll(PDO::FETCH_ASSOC);$label='name';}else{$s=q("SELECT id,$label FROM $table ORDER BY $label")->fetchAll(PDO::FETCH_ASSOC);}$o='';foreach($s as $r)$o.='<option value="'.$r['id'].'" '.((string)$r['id']===(string)$selected?'selected':'').'>'.e($r[$label]).'</option>';return $o;}
 function modal(string $id,string $title,string $body):void{echo '<div class="modal fade" id="'.$id.'"><div class="modal-dialog modal-lg"><form method="post" class="modal-content"><div class="modal-header"><h5>'.$title.'</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">'.csrf_field().$body.'</div><div class="modal-footer"><button class="btn btn-primary">Simpan</button></div></form></div></div>';}
 function csrf_field():string{return '<input type="hidden" name="csrf" value="'.csrf().'">';}
 if(!$u): ?>
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login | <?=APP_NAME?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"><link href="assets/css/style.css?v=<?=md5_file('assets/css/style.css')?>" rel="stylesheet"></head><body class="login-page"><div class="login-left"><div class="login-left-inner"><div class="login-brand"><i class="bi bi-mortarboard-fill"></i> <span>CBT</span>School</div><h1>Sistem Ujian<br><span>Berbasis Komputer</span></h1><p>Kelola ujian, bank soal, dan penilaian siswa dalam satu platform terintegrasi.</p><div class="login-features"><div class="login-feature"><i class="bi bi-shield-check"></i><span>Keamanan data terjamin</span></div><div class="login-feature"><i class="bi bi-lightning-charge"></i><span>Penilaian otomatis</span></div><div class="login-feature"><i class="bi bi-graph-up"></i><span>Statistik real-time</span></div></div></div><div class="login-left-footer">&copy; <?=date('Y')?> <?=APP_NAME?></div></div><div class="login-right"><main class="login-card"><div class="login-card-head"><div class="login-logo-sm"><i class="bi bi-mortarboard-fill"></i></div><h2>Selamat Datang</h2><p>Masuk ke akun Anda untuk melanjutkan</p></div><?php if($flash):?><div class="alert alert-<?=$flash[0]?>"><i class="bi bi-exclamation-circle"></i> <?=e($flash[1])?></div><?php endif?><form method="post" action="?action=login" class="login-form"><?=csrf_field()?><div class="field"><label for="email">Email</label><div class="field-input"><i class="bi bi-envelope"></i><input id="email" required type="email" name="email" placeholder="nama@sekolah.id"></div></div><div class="field"><label for="password">Password</label><div class="field-input"><i class="bi bi-lock"></i><input id="password" required type="password" name="password" placeholder="Masukkan password"></div></div><button type="submit" class="btn-login">Masuk <i class="bi bi-arrow-right"></i></button></form></main></div></body></html>
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login | <?=APP_NAME?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"><link href="assets/css/style.css?v=<?=md5_file('assets/css/style.css')?>" rel="stylesheet"></head><body class="login-page"><div class="login-left"><div class="login-left-inner"><div class="login-brand"><i class="bi bi-mortarboard-fill"></i> <span>CBT</span>School</div><h1>Sistem Ujian<br><span>Berbasis Komputer</span></h1><p>Kelola ujian, bank soal, dan penilaian siswa dalam satu platform terintegrasi.</p><div class="login-features"><div class="login-feature"><i class="bi bi-shield-check"></i><span>Keamanan data terjamin</span></div><div class="login-feature"><i class="bi bi-lightning-charge"></i><span>Penilaian otomatis</span></div><div class="login-feature"><i class="bi bi-graph-up"></i><span>Statistik real-time</span></div></div></div><div class="login-left-footer">&copy; <?=date('Y')?> <?=APP_NAME?></div></div><div class="login-right"><main class="login-card"><div class="login-card-head"><div class="login-logo-sm"><i class="bi bi-mortarboard-fill"></i></div><h2>Selamat Datang</h2><p>Masuk ke akun Anda untuk melanjutkan</p></div><?php if($flash):?><div class="alert alert-<?=$flash[0]?>"><i class="bi bi-exclamation-circle"></i> <?=e($flash[1])?></div><?php endif?><form method="post" action="?action=login" class="login-form"><?=csrf_field()?><div class="field"><label for="email">NISN / Email</label><div class="field-input"><i class="bi bi-person"></i><input id="email" required type="text" name="email" placeholder="NISN atau email"></div></div><div class="field"><label for="password">Password</label><div class="field-input"><i class="bi bi-lock"></i><input id="password" required type="password" name="password" placeholder="Masukkan password"></div></div><button type="submit" class="btn-login">Masuk <i class="bi bi-arrow-right"></i></button></form></main></div></body></html>
 <?php else:
-$nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-people'],'manage'=>['Data Master','bi-database'],'questions'=>['Bank Soal','bi-patch-question'],'exams'=>['Ujian & Jadwal','bi-calendar2-check'],'grading'=>['Koreksi Essay','bi-check2-square'],'reports'=>['Laporan Nilai','bi-bar-chart'],'student'=>['Ujian Saya','bi-pencil-square'],'profile'=>['Profil','bi-person-gear'],'settings'=>['Pengaturan','bi-gear'],'logs'=>['Log Aktivitas','bi-clock-history']];
+$nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-people'],'manage'=>['Data Master','bi-database'],'questions'=>['Bank Soal','bi-patch-question'],'exams'=>['Ujian & Jadwal','bi-calendar2-check'],'grading'=>['Koreksi Essay','bi-check2-square'],'reports'=>['Laporan Nilai','bi-bar-chart'],'monitoring'=>['Monitoring','bi-camera-video'],'student'=>['Ujian Saya','bi-pencil-square'],'profile'=>['Profil','bi-person-gear'],'settings'=>['Pengaturan','bi-gear'],'logs'=>['Log Aktivitas','bi-clock-history']];
 ?>
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=e(ucfirst($page))?> | <?=APP_NAME?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"><link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" rel="stylesheet"><link href="assets/css/style.css?v=<?=filemtime('assets/css/style.css')?>" rel="stylesheet"></head><body>
-<aside class="sidebar">
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=e(ucfirst($page))?> | <?=APP_NAME?></title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"><link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.css" rel="stylesheet"><link href="assets/css/style.css?v=<?=filemtime('assets/css/style.css')?>" rel="stylesheet"></head><body><a href="#main-content" class="skip-link">Langsung ke konten</a>
+<aside class="sidebar" id="sidebar">
   <a class="logo" href="?page=dashboard"><i class="bi bi-mortarboard-fill"></i> CBT<span>School</span></a>
   <div class="user-mini">
     <div class="avatar"><?=strtoupper($u['name'][0])?></div>
@@ -19,8 +19,10 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
     <?php foreach($nav as $k=>$v):
       if($k==='student' && $u['role']!=='Siswa') continue;
       if($k==='grading' && $u['role']==='Siswa') continue;
-      if(in_array($k,['settings','logs','users','manage']) && $u['role']!=='Admin') continue;
-      if(in_array($k,['questions','exams','reports']) && $u['role']==='Siswa') continue;
+      if(in_array($k,['monitoring']) && in_array($u['role'],['Siswa'])) continue;
+      if(in_array($k,['settings','users','manage']) && $u['role']!=='Admin') continue;
+      if(in_array($k,['questions','exams','reports','grading','logs']) && $u['role']==='Siswa') continue;
+      if($u['role']==='Proktor' && !in_array($k,['dashboard','monitoring','reports','logs','profile'])) continue;
     ?>
     <a class="<?=($page===$k?'active':'')?>" href="?page=<?=$k?>"><i class="bi <?=$v[1]?>"></i><?=$v[0]?></a>
     <?php endforeach?>
@@ -28,11 +30,11 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   <a class="logout" href="?action=logout"><i class="bi bi-box-arrow-left"></i> Keluar</a>
 </aside>
 <div class="sidebar-backdrop" onclick="document.querySelector('.sidebar').classList.remove('open')"></div>
-<main class="content">
+<main class="content" id="main-content">
   <header>
-    <button class="btn d-md-none" onclick="document.querySelector('.sidebar').classList.toggle('open')"><i class="bi bi-list"></i></button>
+    <button class="btn d-md-none" onclick="var s=document.querySelector('.sidebar');s.classList.toggle('open');this.setAttribute('aria-expanded',s.classList.contains('open'))" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="sidebar"><i class="bi bi-list"></i></button>
     <div><h4><?=e($nav[$page][0]??'Halaman')?></h4><small><?=date('l, d F Y')?></small></div>
-    <div class="ms-auto d-flex align-items-center gap-2"><a href="#" id="darkModeToggle" title="Tema Gelap"><i class="bi bi-moon-stars"></i></a><i class="bi bi-bell"></i></div>
+    <div class="ms-auto d-flex align-items-center gap-2"><a href="#" id="darkModeToggle" title="Tema Gelap"><i class="bi bi-moon-stars"></i></a><div class="dropdown" id="notifDropdown"><a class="position-relative" data-bs-toggle="dropdown"><i class="bi bi-bell"></i><span class="notif-badge" id="notifCount">0</span></a><div class="dropdown-menu dropdown-menu-end notif-menu" style="width:320px;max-height:400px;overflow-y:auto"><div class="d-flex justify-content-between px-3 py-2 border-bottom"><b>Notifikasi</b><a href="?action=mark_all_read" class="small">Tandai dibaca</a></div><div id="notifList"><div class="px-3 py-2 text-muted small">Memuat...</div></div></div></div></div>
   </header>
   <?php if($flash):?><div class="alert alert-<?=$flash[0]?> alert-dismissible fade show"><?=e($flash[1])?><button class="btn-close" data-bs-dismiss="alert"></button></div><?php endif?>
 
@@ -59,7 +61,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   $cfg=['classes'=>['Kelas',['name'=>'Nama Kelas','major_id'=>'Jurusan','academic_year_id'=>'Tahun Ajaran']],'subjects'=>['Mata Pelajaran',['name'=>'Nama','code'=>'Kode','teacher_id'=>'Guru']],'majors'=>['Jurusan',['name'=>'Nama','code'=>'Kode']],'academic_years'=>['Tahun Ajaran',['name'=>'Tahun','active'=>'Aktif (1/0)']]];
   if(!isset($cfg[$entity]))$entity='classes';
   [$title,$fields]=$cfg[$entity];
-  $rows=q("SELECT * FROM $entity ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+  if($entity==='classes'){$rows=q('SELECT c.*,m.name major_name,ay.name academic_year_name FROM classes c LEFT JOIN majors m ON m.id=c.major_id LEFT JOIN academic_years ay ON ay.id=c.academic_year_id ORDER BY c.id DESC')->fetchAll(PDO::FETCH_ASSOC);}else{$rows=q("SELECT * FROM $entity ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);}
 ?>
 <div class="d-flex gap-2 flex-wrap mb-3">
   <?php foreach($cfg as $k=>$x):?>
@@ -74,7 +76,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
     <?php foreach($rows as $r):?>
     <tr>
       <td><?=$r['id']?></td>
-      <?php foreach(array_keys($fields) as $f):?><td><?=e((string)($r[$f]??''))?></td><?php endforeach?>
+      <?php foreach(array_keys($fields) as $f):?><td><?=$f==='major_id'?e($r['major_name']??'-'):($f==='academic_year_id'?e($r['academic_year_name']??'-'):e((string)($r[$f]??'')))?></td><?php endforeach?>
       <td class="text-nowrap">
         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#edit_<?=$r['id']?>" title="Edit"><i class="bi bi-pencil"></i></button>
         <form method="post" action="?action=delete" style="display:inline" onsubmit="return confirm('Hapus data ini?')"><?=csrf_field()?><input type="hidden" name="entity" value="<?=$entity?>"><input type="hidden" name="id" value="<?=$r['id']?>"><button class="btn btn-sm btn-outline-danger" title="Hapus"><i class="bi bi-trash"></i></button></form>
@@ -96,7 +98,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
 <?php elseif($f==='teacher_id'):?>
 <select class="form-select" name="teacher_id"><option value="">-</option><?=opts('teachers')?></select>
 <?php else:?>
-<input name="<?=$f?>" class="form-control" required>
+<input name="<?=$f?>" class="form-control <?=$entity==='classes'&&$f==='name'?'grade-roman':''?>" required>
 <?php endif;?>
 <?php endforeach?>
 <?php modal('form','Tambah '.$title,ob_get_clean());?>
@@ -116,7 +118,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
 <?php elseif($f==='active'):?>
 <select class="form-select" name="active"><option value="1" <?=$r[$f]??''=='1'?'selected':''?>>Ya</option><option value="0" <?=$r[$f]??''=='0'?'selected':''?>>Tidak</option></select>
 <?php else:?>
-<input name="<?=$f?>" class="form-control" value="<?=e((string)($r[$f]??''))?>" required>
+<input name="<?=$f?>" class="form-control <?=$entity==='classes'&&$f==='name'?'grade-roman':''?>" value="<?=e((string)($r[$f]??''))?>" required>
 <?php endif;?>
 <?php endforeach?>
 <?php modal('edit_'.$r['id'],'Edit '.$title,ob_get_clean());?>
@@ -127,6 +129,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   $rows=q('SELECT u.*,r.name role FROM users u JOIN roles r ON r.id=u.role_id ORDER BY u.id DESC')->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userform"><i class="bi bi-person-plus"></i> Tambah User</button>
+<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#importModal"><i class="bi bi-upload"></i> Import CSV</button>
 <div class="panel table-responsive">
   <table class="table data-table">
     <thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
@@ -158,7 +161,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
 <label class="form-label">Nama</label>
 <input name="name" required class="form-control">
 <label class="form-label mt-2">Email</label>
-<input name="email" type="email" required class="form-control">
+<input name="email" type="text" class="form-control" placeholder="Kosongkan jika siswa (login pakai NISN)">
 <label class="form-label mt-2">Password</label>
 <input name="password" type="password" required class="form-control">
 <label class="form-label mt-2">Role</label>
@@ -167,18 +170,24 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   <option value="3">Siswa</option>
   <option value="1">Admin</option>
 </select>
+<label class="form-label mt-2">NISN (untuk siswa)</label>
+<input name="nisn" class="form-control" placeholder="Nomor Induk Siswa Nasional">
 <label class="form-label mt-2">Kelas (untuk siswa)</label>
 <select name="class_id" class="form-select"><option value="">-</option><?=opts('classes')?></select>
 <?php modal('userform','Tambah User',ob_get_clean());?>
 
-<?php foreach($rows as $r):?>
+<div class="modal fade" id="importModal"><div class="modal-dialog"><form method="post" action="?action=import_users" enctype="multipart/form-data" class="modal-content"><div class="modal-header"><h5>Import User dari CSV</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><?=csrf_field()?><div class="mb-3"><label class="form-label">File CSV</label><input type="file" name="csv_file" accept=".csv" required class="form-control"></div><div class="mb-3"><label class="form-label">Role</label><select name="role_id" class="form-select"><option value="2">Guru</option><option value="3" selected>Siswa</option><option value="1">Admin</option></select></div><div class="mb-3"><label class="form-label">Kelas (untuk siswa)</label><select name="class_id" class="form-select"><option value="">-</option><?=opts('classes')?></select></div><div class="small text-muted"><strong>Format CSV:</strong> baris pertama header <code>nama,email,password,nisn_nip</code>. Email boleh kosong (auto-generate untuk siswa). NISN/NIP boleh kosong (auto-generate).<br><a href="data:text/csv;charset=utf-8,nama,email,password,nisn_nip%0ABudi Santoso,,rahasia123," download="template-import-user.csv">Download Template CSV</a></div></div><div class="modal-footer"><button class="btn btn-primary">Import</button></div></form></div></div>
+
+<?php foreach($rows as $r):
+  $st=$r['role_id']==3?q('SELECT nis,class_id FROM students WHERE user_id=?',[$r['id']])->fetch(PDO::FETCH_ASSOC):null;
+?>
 <?php ob_start();?>
 <input type="hidden" name="action" value="user_save">
 <input type="hidden" name="id" value="<?=$r['id']?>">
 <label class="form-label">Nama</label>
 <input name="name" required class="form-control" value="<?=e($r['name'])?>">
 <label class="form-label mt-2">Email</label>
-<input name="email" type="email" required class="form-control" value="<?=e($r['email'])?>">
+<input name="email" type="text" class="form-control" value="<?=e($r['email'])?>" placeholder="Kosongkan jika siswa">
 <label class="form-label mt-2">Password (kosongkan jika tidak ubah)</label>
 <input name="password" type="password" class="form-control">
 <label class="form-label mt-2">Role</label>
@@ -192,6 +201,10 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
   <option value="1" <?=$r['active']?'selected':''?>>Aktif</option>
   <option value="0" <?=!$r['active']?'selected':''?>>Nonaktif</option>
 </select>
+<label class="form-label mt-2">NISN</label>
+<input name="nisn" class="form-control" value="<?=e($st['nis']??'')?>">
+<label class="form-label mt-2">Kelas</label>
+<select name="class_id" class="form-select"><option value="">-</option><?=opts('classes',$st['class_id']??'')?></select>
 <?php modal('userform_'.$r['id'],'Edit User',ob_get_clean());?>
 <?php endforeach?>
 
@@ -230,7 +243,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
 <label class="form-label mt-2">Jenis</label>
 <select name="type" id="qtype" class="form-select"><option value="multiple">Pilihan Ganda</option><option value="essay">Essay</option></select>
 <label class="form-label mt-2">Pertanyaan</label>
-<textarea name="question" required class="form-control"></textarea>
+<textarea name="question" required class="form-control summernote"></textarea>
 <label class="form-label mt-2">Bobot</label>
 <input name="weight" type="number" step=".01" value="1" class="form-control">
 <div id="choices">
@@ -253,7 +266,7 @@ $nav=['dashboard'=>['Dashboard','bi-grid-1x2'],'users'=>['Kelola User','bi-peopl
 <label class="form-label mt-2">Jenis</label>
 <select name="type" class="form-select qtype-edit" data-target="choices_<?=$r['id']?>"><option value="multiple" <?=$r['type']==='multiple'?'selected':''?>>Pilihan Ganda</option><option value="essay" <?=$r['type']==='essay'?'selected':''?>>Essay</option></select>
 <label class="form-label mt-2">Pertanyaan</label>
-<textarea name="question" required class="form-control"><?=e($r['question'])?></textarea>
+<textarea name="question" required class="form-control summernote"><?=e($r['question'])?></textarea>
 <label class="form-label mt-2">Bobot</label>
 <input name="weight" type="number" step=".01" value="<?=$r['weight']?>" class="form-control">
 <div id="choices_<?=$r['id']?>" style="<?=$r['type']==='essay'?'display:none':''?>">
@@ -324,14 +337,21 @@ if($tid){
   <div class="col"><label class="form-label">Token (kosong=otomatis)</label><input name="token" class="form-control"></div>
 </div>
 <div class="mt-3">
-  <label><input type="checkbox" name="random_questions" checked> Acak soal</label>
+  <label><input type="checkbox" name="random_questions" checked> Acak urutan soal</label>
   <label class="ms-3"><input type="checkbox" name="random_choices" checked> Acak pilihan</label>
   <label class="ms-3"><input type="checkbox" name="show_score"> Tampilkan nilai</label>
+  <div class="mt-2"><label class="form-label">Jumlah soal per siswa (0=semua soal)</label><input name="random_questions_count" type="number" value="0" min="0" class="form-control" style="max-width:120px"></div>
+</div>
+<div class="mt-3"><label class="form-label">Kelompok Soal (opsional)</label>
+<div id="sectionList">
+  <div class="section-entry d-flex gap-2 mb-1"><input name="section_title[]" class="form-control" placeholder="Nama bagian (misal: PG)" style="max-width:200px"><input name="section_timer[]" type="number" class="form-control" placeholder="Timer (menit)" style="max-width:120px" min="0"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></div>
+</div>
+<button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="var e=document.querySelector('#sectionList .section-entry');var c=e.cloneNode(true);c.querySelectorAll('input').forEach(i=>i.value='');document.getElementById('sectionList').appendChild(c)"><i class="bi bi-plus"></i> Tambah Kelompok</button>
 </div>
 <label class="form-label mt-3">Pilih Soal</label>
 <div class="question-picker">
 <?php foreach($questions as $x):?>
-<label><input type="checkbox" name="questions[]" value="<?=$x['id']?>"> [<?=e($x['name'])?>] <?=e(mb_strimwidth($x['question'],0,60,'...'))?></label>
+<label class="d-flex align-items-center gap-2 mb-1"><input type="checkbox" name="questions[]" value="<?=$x['id']?>"><span class="flex-grow-1">[<?=e($x['name'])?>] <?=e(mb_strimwidth($x['question'],0,60,'...'))?></span><select name="question_section[<?=$x['id']?>]" class="form-select form-select-sm" style="width:auto"><option value="0">-</option><option value="1">Bagian 1</option><option value="2">Bagian 2</option><option value="3">Bagian 3</option><option value="4">Bagian 4</option><option value="5">Bagian 5</option></select></label>
 <?php endforeach?>
 </div>
 <div class="row mt-3">
@@ -342,8 +362,10 @@ if($tid){
 <?php modal('eform','Buat Ujian',ob_get_clean());?>
 
 <?php foreach($rows as $r):
-  $eq=q('SELECT question_id FROM exam_questions WHERE exam_id=?',[$r['id']])->fetchAll(PDO::FETCH_COLUMN);
+  $eq=q('SELECT question_id,section_id FROM exam_questions WHERE exam_id=?',[$r['id']])->fetchAll(PDO::FETCH_ASSOC);
+  $eqFlat=array_column($eq,'question_id'); $eqSections=[]; foreach($eq as $e){$eqSections[$e['question_id']]=$e['section_id'];}
   $sc=q('SELECT * FROM schedules WHERE exam_id=? LIMIT 1',[$r['id']])->fetch(PDO::FETCH_ASSOC);
+  $editSections=q('SELECT * FROM exam_sections WHERE exam_id=? ORDER BY ordering',[$r['id']])->fetchAll(PDO::FETCH_ASSOC);
   if($tid){$editQ=q('SELECT q.id,q.question,s.name FROM questions q JOIN subjects s ON s.id=q.subject_id WHERE q.teacher_id=? ORDER BY q.id DESC',[$tid])->fetchAll(PDO::FETCH_ASSOC);}
   else{$editQ=q('SELECT q.id,q.question,s.name FROM questions q JOIN subjects s ON s.id=q.subject_id ORDER BY q.id DESC')->fetchAll(PDO::FETCH_ASSOC);}
 ?>
@@ -361,14 +383,25 @@ if($tid){
   <div class="col"><label class="form-label">Token</label><input name="token" class="form-control" value="<?=e($r['token'])?>"></div>
 </div>
 <div class="mt-3">
-  <label><input type="checkbox" name="random_questions" <?=$r['random_questions']?'checked':''?>> Acak soal</label>
+  <label><input type="checkbox" name="random_questions" <?=$r['random_questions']?'checked':''?>> Acak urutan soal</label>
   <label class="ms-3"><input type="checkbox" name="random_choices" <?=$r['random_choices']?'checked':''?>> Acak pilihan</label>
   <label class="ms-3"><input type="checkbox" name="show_score" <?=$r['show_score']?'checked':''?>> Tampilkan nilai</label>
+  <div class="mt-2"><label class="form-label">Jumlah soal per siswa (0=semua)</label><input name="random_questions_count" type="number" value="<?=$r['random_questions_count']?>" min="0" class="form-control" style="max-width:120px"></div>
+</div>
+<div class="mt-3"><label class="form-label">Kelompok Soal (opsional)</label>
+<div id="sectionList_<?=$r['id']?>">
+<?php if($editSections): foreach($editSections as $es):?>
+  <div class="section-entry d-flex gap-2 mb-1"><input name="section_title[]" class="form-control" value="<?=e($es['title'])?>" placeholder="Nama bagian" style="max-width:200px"><input name="section_timer[]" type="number" class="form-control" value="<?=$es['timer']??''?>" placeholder="Timer (menit)" style="max-width:120px" min="0"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></div>
+<?php endforeach; else:?>
+  <div class="section-entry d-flex gap-2 mb-1"><input name="section_title[]" class="form-control" placeholder="Nama bagian" style="max-width:200px"><input name="section_timer[]" type="number" class="form-control" placeholder="Timer (menit)" style="max-width:120px" min="0"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button></div>
+<?php endif?>
+</div>
+<button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="var e=document.querySelector('#sectionList_<?=$r['id']?> .section-entry');var c=e.cloneNode(true);c.querySelectorAll('input').forEach(i=>i.value='');document.getElementById('sectionList_<?=$r['id']?>').appendChild(c)"><i class="bi bi-plus"></i> Tambah Kelompok</button>
 </div>
 <label class="form-label mt-3">Pilih Soal</label>
 <div class="question-picker">
-<?php foreach($editQ as $x):?>
-<label><input type="checkbox" name="questions[]" value="<?=$x['id']?>" <?=in_array($x['id'],$eq)?'checked':''?>> [<?=e($x['name'])?>] <?=e(mb_strimwidth($x['question'],0,60,'...'))?></label>
+<?php foreach($editQ as $x): $secId=$eqSections[$x['id']]??null; $secNum=$secId?q('SELECT ordering+1 FROM exam_sections WHERE id=?',[$secId])->fetchColumn():0;?>
+<label class="d-flex align-items-center gap-2 mb-1"><input type="checkbox" name="questions[]" value="<?=$x['id']?>" <?=in_array($x['id'],$eqFlat)?'checked':''?>><span class="flex-grow-1">[<?=e($x['name'])?>] <?=e(mb_strimwidth($x['question'],0,60,'...'))?></span><select name="question_section[<?=$x['id']?>]" class="form-select form-select-sm" style="width:auto"><option value="0">-</option><option value="1" <?=$secNum==1?'selected':''?>>Bagian 1</option><option value="2" <?=$secNum==2?'selected':''?>>Bagian 2</option><option value="3" <?=$secNum==3?'selected':''?>>Bagian 3</option><option value="4" <?=$secNum==4?'selected':''?>>Bagian 4</option><option value="5" <?=$secNum==5?'selected':''?>>Bagian 5</option></select></label>
 <?php endforeach?>
 </div>
 <div class="row mt-3">
@@ -379,11 +412,43 @@ if($tid){
 <?php modal('eedit_'.$r['id'],'Edit Ujian',ob_get_clean());?>
 <?php endforeach?>
 
+<?php elseif($page==='monitoring'):
+  role('Admin','Guru','Proktor');
+  $tid=$u['role']==='Guru'?q('SELECT id FROM teachers WHERE user_id=?',[$u['id']])->fetchColumn():null;
+  $exams=$tid?q('SELECT id,title FROM exams WHERE teacher_id=? ORDER BY title',[$tid])->fetchAll(PDO::FETCH_ASSOC):q('SELECT id,title FROM exams ORDER BY title')->fetchAll(PDO::FETCH_ASSOC);
+  $eid=(int)($_GET['exam_id']??0);
+?>
+<div class="panel mb-3">
+  <h5>Live Monitoring Ujian</h5>
+  <form class="row g-3" method="get">
+    <input type="hidden" name="page" value="monitoring">
+    <div class="col-md-4"><select name="exam_id" class="form-select" onchange="this.form.submit()"><option value="">- Pilih Ujian -</option><?php foreach($exams as $x):?><option value="<?=$x['id']?>" <?=$eid==$x['id']?'selected':''?>><?=e($x['title'])?></option><?php endforeach?></select></div>
+  </form>
+</div>
+<?php if($eid):?>
+<div class="panel table-responsive">
+  <table class="table" id="monitorTable">
+    <thead><tr><th>Siswa</th><th>Status</th><th>Terjawab</th><th>Pelanggaran</th><th>Mulai</th><th>Ping Terakhir</th></tr></thead>
+    <tbody id="monitorBody"><tr><td colspan="6" class="text-muted">Memuat data...</td></tr></tbody>
+  </table>
+</div>
+<script>
+function loadMonitor(){$.get('?action=monitor_data&exam_id=<?=$eid?>',function(d){var h='';d.forEach(function(x){var online=x.online?'<span class="badge badge-active">Online</span>':'<span class="badge badge-inactive">Offline</span>';var status=x.status==='in_progress'?'<span class="badge badge-warning">Berlangsung</span>':x.status==='submitted'?'<span class="badge badge-info">Dikumpulkan</span>':'<span class="badge badge-active">Selesai</span>';var vioClass=x.violations>0?'text-danger fw-bold':'';h+='<tr><td>'+x.student_name+'</td><td>'+status+' '+online+'</td><td>'+x.answered+'/'+x.total_questions+'</td><td class="'+vioClass+'">'+x.violations+'</td><td>'+(x.started_at||'-')+'</td><td>'+(x.last_ping||'-')+'</td></tr>';});$('#monitorBody').html(h||'<tr><td colspan="6" class="text-muted">Belum ada peserta.</td></tr>');});}
+<?php if($eid):?>setInterval(loadMonitor,5000);loadMonitor();<?php endif?>
+</script>
+<?php endif?>
+
 <?php elseif($page==='student'):
   role('Siswa');
   $active=q("SELECT e.*,sc.starts_at,sc.ends_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? ORDER BY sc.starts_at DESC",[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
   $history=q('SELECT e.title,r.* FROM exam_results r JOIN students s ON s.id=r.student_id JOIN exams e ON e.id=r.exam_id WHERE s.user_id=? ORDER BY r.id DESC',[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<?php if($u['role']==='Siswa'):
+  $todayExams=q("SELECT e.title,sc.starts_at,sc.ends_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? AND DATE(sc.starts_at)=CURDATE() ORDER BY sc.starts_at",[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
+  if($todayExams):?>
+  <div class="alert alert-info d-flex align-items-center gap-2"><i class="bi bi-megaphone-fill"></i> <div><b>Ujian Hari Ini:</b> <?=implode(', ',array_map(fn($x)=>e($x['title']).' ('.date('H:i',strtotime($x['starts_at'])).'-'.date('H:i',strtotime($x['ends_at'])).')',$todayExams))?></div></div>
+  <?php endif?>
+<?php endif?>
 <section class="panel mb-3">
   <h5>Ujian Tersedia</h5>
   <?php
@@ -401,6 +466,7 @@ if($tid){
         <div class="card-body">
           <h6 class="mb-1"><?=e($x['title'])?></h6>
           <small class="text-muted d-block mb-2"><?=e($x['starts_at'])?> s/d <?=e($x['ends_at'])?></small>
+          <button type="button" class="btn btn-sm btn-outline-info mb-2" onclick="window.open('?page=exam_card&exam=<?=$x['id']?>','_blank','width=500,height=700')"><i class="bi bi-card-text"></i> Kartu Ujian</button>
           <?php if($isStarted):?>
             <a href="?page=attempt&result=<?=q('SELECT id FROM exam_results WHERE exam_id=? AND student_id=(SELECT id FROM students WHERE user_id=?)',[$x['id'],$u['id']])->fetchColumn()?>" class="btn btn-warning btn-sm"><i class="bi bi-arrow-right"></i> Lanjutkan</a>
           <?php else:?>
@@ -455,8 +521,10 @@ if($tid){
   $rid=(int)$_GET['result'];
   $result=q('SELECT r.*,e.title,e.duration,e.random_questions,e.random_choices,e.show_score FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN students s ON s.id=r.student_id WHERE r.id=? AND s.user_id=?',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
   if(!$result||$result['status']!=='in_progress')redirect('page=student');
-  $qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=?'.($result['random_questions']?' ORDER BY RAND()':' ORDER BY q.id'),[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC); $totalQ=count($qs);
+  $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY RAND()',[$rid])->fetchAll(PDO::FETCH_COLUMN);
+  if($sq){$placeholders=implode(',',array_fill(0,count($sq),'?'));$qs=q("SELECT q.* FROM questions q WHERE q.id IN ($placeholders) ORDER BY FIELD(q.id,$placeholders)",array_merge($sq,$sq))->fetchAll(PDO::FETCH_ASSOC);}else{$qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=?'.($result['random_questions']?' ORDER BY RAND()':' ORDER BY q.id'),[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);}$totalQ=count($qs);
   $answerData=[]; foreach($qs as $x){$ans=q('SELECT answer_text,flagged FROM answers WHERE result_id=? AND question_id=?',[$rid,$x['id']])->fetch(PDO::FETCH_ASSOC);$answerData[$x['id']]=['answer'=>$ans['answer_text']??'','flagged'=>(int)($ans['flagged']??0)];}
+  $sections=q('SELECT s.*,eq.question_id FROM exam_sections s LEFT JOIN exam_questions eq ON eq.section_id=s.id WHERE s.exam_id=? ORDER BY s.ordering,eq.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);$questionSection=[];foreach($sections as $s){$questionSection[$s['question_id']]=$s;}
 ?>
 <div class="exam-layout">
   <div class="exam-main">
@@ -472,15 +540,21 @@ if($tid){
     <form id="examForm" method="post" action="?action=submit">
       <?=csrf_field()?>
       <input type="hidden" name="result" value="<?=$rid?>">
-      <?php foreach($qs as $n=>$x):
+      <?php $prevSection=null; $gn=0; foreach($qs as $n=>$x):
         $ad=$answerData[$x['id']]; $ans=$ad['answer']; $flag=$ad['flagged'];
-      ?>
-      <section class="panel question" data-q="<?=$x['id']?>" data-no="<?=$n+1?>">
+        $curSection=$questionSection[$x['id']]??null; $sid=$curSection['id']??0;
+        if($sid && $sid!==$prevSection): $prevSection=$sid;?>
+<div class="section-header" data-section-id="<?=$sid?>" data-timer="<?=$curSection['timer']??0?>">
+          <h6 class="mb-0"><?=e($curSection['title'])?></h6>
+          <?php if($curSection['timer']):?><small><i class="bi bi-clock"></i> <span class="section-timer" data-end="0"><?=$curSection['timer']?> menit</span></small><?php endif?>
+        </div>
+      <?php endif?>
+      <section class="panel question" id="q<?=$x['id']?>" data-q="<?=$x['id']?>" data-no="<?=++$gn?>">
         <div class="d-flex justify-content-between align-items-start">
           <span class="q-num">Soal <?=$n+1?></span>
           <button type="button" class="btn btn-sm btn-outline-warning ragu-btn <?=$flag?'active':''?>" data-question="<?=$x['id']?>" title="Tandai ragu-ragu"><i class="bi bi-flag<?=$flag?'-fill':''?>"></i> <span>Ragu</span></button>
         </div>
-        <p><?=nl2br(e($x['question']))?></p>
+        <div class="question-content"><?=$x['question']?></div>
         <?php if($x['type']==='essay'):?>
           <textarea class="form-control answer" data-question="<?=$x['id']?>" rows="5"><?=e($ans)?></textarea>
         <?php else:
@@ -491,18 +565,26 @@ if($tid){
         endif?>
       </section>
       <?php endforeach?>
-      <button class="btn btn-success btn-lg mb-5" onclick="return confirm('Kumpulkan jawaban sekarang?')"><i class="bi bi-send"></i> Kumpulkan Ujian</button>
+      <div class="d-flex gap-2 mb-5 flex-wrap">
+        <a href="?page=preview&result=<?=$rid?>" class="btn btn-warning btn-lg"><i class="bi bi-eye"></i> Review Jawaban</a>
+        <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Kumpulkan ujian sekarang?')"><i class="bi bi-send"></i> Kumpulkan</button>
+      </div>
     </form>
   </div>
   <div class="exam-nav" id="examNav">
     <div class="exam-nav-header">Navigasi Soal</div>
     <div class="exam-nav-grid">
-      <?php foreach($qs as $n=>$x):
+      <?php $navSection=null; $ns=0; foreach($qs as $n=>$x):
         $ad=$answerData[$x['id']]; $cls='unanswered'; $title='Belum dijawab';
+        $curNavSec=$questionSection[$x['id']]??null;
+        $nsid=$curNavSec['id']??0;
+        if($nsid && $nsid!==$navSection): $navSection=$nsid;?>
+        <div class="nav-section-label"><?=e($curNavSec['title'])?></div>
+      <?php endif; $ns++;
         if($ad['flagged']){$cls='flagged';$title='Ditandai ragu';}
         if($ad['answer']!==''){$cls=$cls==='flagged'?'flagged':($x['type']==='essay'&&$ad['answer']!==''?'answered':'answered');$title=$ad['flagged']?'Terjawab & ditandai':'Terjawab';}
       ?>
-      <a href="#q<?=$x['id']?>" class="nav-q <?=$cls?>" title="<?=$title?>" data-q="<?=$x['id']?>"><?=$n+1?></a>
+      <a href="#q<?=$x['id']?>" class="nav-q <?=$cls?>" title="<?=$title?>" data-q="<?=$x['id']?>"><?=$ns?></a>
       <?php endforeach?>
     </div>
     <div class="exam-nav-legend">
@@ -513,12 +595,64 @@ if($tid){
   </div>
 </div>
 
+<?php elseif($page==='preview'):
+  role('Siswa');
+  $rid=(int)$_GET['result'];
+  $result=q('SELECT r.*,e.title,e.duration,e.show_score FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN students s ON s.id=r.student_id WHERE r.id=? AND s.user_id=? AND r.status="in_progress"',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
+  if(!$result)redirect('page=student');
+  $sq=q('SELECT question_id FROM student_questions WHERE result_id=?',[$rid])->fetchAll(PDO::FETCH_COLUMN);
+  if($sq){$placeholders=implode(',',array_fill(0,count($sq),'?'));$qs=q("SELECT q.* FROM questions q WHERE q.id IN ($placeholders) ORDER BY FIELD(q.id,$placeholders)",array_merge($sq,$sq))->fetchAll(PDO::FETCH_ASSOC);}else{$qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=? ORDER BY q.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);}
+  $answerData=[]; foreach($qs as $x){$ans=q('SELECT answer_text,flagged FROM answers WHERE result_id=? AND question_id=?',[$rid,$x['id']])->fetch(PDO::FETCH_ASSOC);$answerData[$x['id']]=['answer'=>$ans['answer_text']??'','flagged'=>(int)($ans['flagged']??0)];}
+  $psections=q('SELECT s.*,eq.question_id FROM exam_sections s LEFT JOIN exam_questions eq ON eq.section_id=s.id WHERE s.exam_id=? ORDER BY s.ordering,eq.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);$pquestionSection=[];foreach($psections as $s){$pquestionSection[$s['question_id']]=$s;}
+  $timer=new DateTime($result['started_at']); $timer->add(new DateInterval('PT'.$result['duration'].'M'));
+  if(new DateTime() > $timer) redirect('?action=submit&result='.$rid);
+?>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Review: <?=e($result['title'])?></h4>
+  <div>
+    <a href="?page=attempt&result=<?=$rid?>" class="btn btn-light btn-sm me-2"><i class="bi bi-arrow-left"></i> Kembali</a>
+    <form method="post" action="?action=submit" style="display:inline" onsubmit="return confirm('Kumpulkan jawaban sekarang?')">
+      <?=csrf_field()?>
+      <input type="hidden" name="result" value="<?=$rid?>">
+      <button class="btn btn-success btn-sm"><i class="bi bi-send"></i> Kumpulkan Ujian</button>
+    </form>
+  </div>
+</div>
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> Periksa kembali jawaban Anda sebelum mengumpulkan.</div>
+<?php $pvSection=null; $pvn=0; foreach($qs as $n=>$x): $ad=$answerData[$x['id']]; $ans=$ad['answer']; $flag=$ad['flagged'];
+  $pcurSec=$pquestionSection[$x['id']]??null; $psid=$pcurSec['id']??0;
+  if($psid && $psid!==$pvSection): $pvSection=$psid;?>
+  <div class="section-header"><h6 class="mb-0"><?=e($pcurSec['title'])?></h6></div>
+<?php endif; $pvn++; ?>
+<div class="panel question mb-2" id="preview_q<?=$x['id']?>">
+  <div class="d-flex justify-content-between align-items-start">
+    <span class="q-num">Soal <?=$n+1?> <?=$flag?'<span class="badge bg-warning ms-1">Ragu</span>':''?></span>
+    <a href="?page=attempt&result=<?=$rid?>#q<?=$x['id']?>" class="btn btn-sm btn-outline-secondary" title="Ubah jawaban"><i class="bi bi-pencil"></i></a>
+  </div>
+  <div class="question-content"><?=$x['question']?></div>
+  <?php if($x['type']==='essay'):?>
+    <div class="border rounded p-3 bg-light"><small class="text-muted">Jawaban Anda:</small><p class="mb-0"><?=nl2br(e($ans?:'(belum dijawab)'))?></p></div>
+  <?php else:
+    $choices=q('SELECT * FROM choices WHERE question_id=? ORDER BY label',[$x['id']])->fetchAll(PDO::FETCH_ASSOC);
+    foreach($choices as $c): $sel=$ans===$c['label'];?>
+    <div class="choice <?=$sel?'choice-selected':''?>">
+      <input type="radio" disabled <?=$sel?'checked':''?>> <b><?=$c['label']?>.</b> <?=e($c['choice_text'])?>
+      <?php if($sel):?><i class="bi bi-check-circle-fill text-success ms-auto"></i><?php endif?>
+    </div>
+    <?php endforeach;
+    if(!$ans):?><small class="text-warning"><i class="bi bi-exclamation-circle"></i> Belum dijawab</small><?php endif?>
+  <?php endif?>
+</div>
+<?php endforeach?>
+
 <?php elseif($page==='review'):
   role('Siswa');
   $rid=(int)$_GET['result'];
   $result=q('SELECT r.*,e.title,e.duration,e.show_score,s.name subject_name FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN subjects s ON s.id=e.subject_id JOIN students st ON st.id=r.student_id WHERE r.id=? AND st.user_id=? AND r.status IN("submitted","graded")',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
   if(!$result)redirect('page=student');
-  $qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=? ORDER BY q.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);
+  $sq=q('SELECT question_id FROM student_questions WHERE result_id=?',[$rid])->fetchAll(PDO::FETCH_COLUMN);
+  if($sq){$pl=implode(',',array_fill(0,count($sq),'?'));$qs=q("SELECT q.* FROM questions q WHERE q.id IN ($pl) ORDER BY FIELD(q.id,$pl)",array_merge($sq,$sq))->fetchAll(PDO::FETCH_ASSOC);}else{$qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=? ORDER BY q.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);}
+  $rsections=q('SELECT s.*,eq.question_id FROM exam_sections s LEFT JOIN exam_questions eq ON eq.section_id=s.id WHERE s.exam_id=? ORDER BY s.ordering,eq.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);$rquestionSection=[];foreach($rsections as $s){$rquestionSection[$s['question_id']]=$s;}
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h4 class="mb-0">Review: <?=e($result['title'])?></h4>
@@ -530,14 +664,17 @@ if($tid){
   <div class="col-md-3"><div class="panel text-center"><small class="text-muted">Durasi</small><p class="mb-0 fw-semibold"><?=$result['duration']?> menit</p></div></div>
   <div class="col-md-3"><div class="panel text-center"><small class="text-muted">Status</small><p class="mb-0 fw-semibold"><?=$result['status']==='graded'?'Dinilai':'Menunggu Koreksi'?></p></div></div>
 </div>
-<?php foreach($qs as $n=>$x):
+<?php $rvSection=null; $rvn=0; foreach($qs as $n=>$x):
   $a=q('SELECT a.*,c.label correct_label,c.choice_text correct_text FROM answers a LEFT JOIN choices c ON c.question_id=a.question_id AND c.is_correct=1 WHERE a.result_id=? AND a.question_id=?',[$rid,$x['id']])->fetch(PDO::FETCH_ASSOC);
   $choices=$x['type']==='multiple'?q('SELECT * FROM choices WHERE question_id=? ORDER BY label',[$x['id']])->fetchAll(PDO::FETCH_ASSOC):[];
-?>
+  $rvcurSec=$rquestionSection[$x['id']]??null; $rvsid=$rvcurSec['id']??0;
+  if($rvsid && $rvsid!==$rvSection): $rvSection=$rvsid;?>
+  <div class="section-header"><h6 class="mb-0"><?=e($rvcurSec['title'])?></h6></div>
+<?php endif; $rvn++; ?>
 <div class="panel question mb-2">
-  <span class="q-num">Soal <?=$n+1?></span>
+  <span class="q-num">Soal <?=$rvn?></span>
   <?php if($a && $a['is_correct']!==null):?><span class="badge ms-2 <?=$a['is_correct']?'badge-active':'badge-inactive'?>"><?=$a['is_correct']?'Benar':'Salah'?></span><?php endif?>
-  <p><?=nl2br(e($x['question']))?></p>
+  <div class="question-content"><?=$x['question']?></div>
   <?php if($x['type']==='multiple'):?>
     <?php foreach($choices as $c):
       $isSelected=$a&&$a['answer_text']===$c['label'];
@@ -600,6 +737,13 @@ if($tid){
 ?>
 <div class="panel mb-3">
   <h5>Profil Saya</h5>
+  <form method="post" action="?action=profile_save" class="row g-3" style="max-width:500px">
+    <?=csrf_field()?>
+    <div class="col-12"><label class="form-label">Nama</label><input type="text" name="name" required class="form-control" value="<?=e($u['name'])?>"></div>
+    <div class="col-12"><label class="form-label">Email</label><input type="text" name="email" class="form-control" value="<?=e($u['email'])?>"></div>
+    <div class="col-12"><button class="btn btn-primary btn-sm">Simpan Profil</button></div>
+  </form>
+  <hr>
   <table class="table" style="max-width:500px">
     <tr><td>Nama</td><td><?=e($u['name'])?></td></tr>
     <tr><td>Email</td><td><?=e($u['email'])?></td></tr>
@@ -667,7 +811,8 @@ if($tid){
     $result=q('SELECT r.*,u.name siswa,e.title FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id WHERE r.exam_id=? AND s.user_id=? AND r.status="submitted"',[$eid,$uid])->fetch(PDO::FETCH_ASSOC);
     if(!$result):?><div class="panel"><p class="text-muted">Belum ada jawaban essay yang perlu dikoreksi.</p></div>
     <?php else:
-      $essays=q('SELECT q.id,q.question,q.weight,a.answer_text,a.score a_score FROM exam_questions eq JOIN questions q ON q.id=eq.question_id LEFT JOIN answers a ON a.question_id=q.id AND a.result_id=? WHERE q.type="essay" AND eq.exam_id=?',[$result['id'],$eid])->fetchAll(PDO::FETCH_ASSOC);
+      $sq=q('SELECT question_id FROM student_questions WHERE result_id=?',[$result['id']])->fetchAll(PDO::FETCH_COLUMN);
+      if($sq){$pl=implode(',',array_fill(0,count($sq),'?'));$sqParams=array_merge($sq,$sq);$essays=q("SELECT q.id,q.question,q.weight,a.answer_text,a.score a_score FROM questions q LEFT JOIN answers a ON a.question_id=q.id AND a.result_id=? WHERE q.id IN ($pl) AND q.type='essay' ORDER BY FIELD(q.id,$pl)",array_merge([$result['id']],$sqParams))->fetchAll(PDO::FETCH_ASSOC);}else{$essays=q('SELECT q.id,q.question,q.weight,a.answer_text,a.score a_score FROM exam_questions eq JOIN questions q ON q.id=eq.question_id LEFT JOIN answers a ON a.question_id=q.id AND a.result_id=? WHERE q.type="essay" AND eq.exam_id=?',[$result['id'],$eid])->fetchAll(PDO::FETCH_ASSOC);}
     ?>
     <div class="panel mb-3"><h5><?=e($result['title'])?> – <?=e($result['siswa'])?></h5></div>
     <form method="post" action="?action=grade_save">
@@ -675,7 +820,8 @@ if($tid){
       <input type="hidden" name="result_id" value="<?=$result['id']?>">
       <?php foreach($essays as $e):?>
       <div class="panel mb-2">
-        <p><strong>Soal:</strong> <?=nl2br(e($e['question']))?></p>
+        <p><strong>Soal:</strong></p>
+        <div class="question-content"><?=$e['question']?></div>
         <p><strong>Bobot:</strong> <?=$e['weight']?></p>
         <p><strong>Jawaban siswa:</strong></p>
         <blockquote class="border-start border-3 ps-3 text-muted"><?=nl2br(e($e['answer_text']??'-'))?></blockquote>
@@ -695,7 +841,7 @@ if($tid){
     <div class="col-md-4"><label class="form-label">Pilih Ujian</label><select name="exam_id" class="form-select" onchange="this.form.submit()"><option value="">- Pilih Ujian -</option><?php foreach($exams as $x):?><option value="<?=$x['id']?>" <?=$eid==$x['id']?'selected':''?>><?=e($x['title'])?></option><?php endforeach?></select></div>
   </form>
   <?php if($eid):
-    $students=q("SELECT DISTINCT u.id user_id,u.name,r.id result_id,r.status FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id WHERE r.exam_id=? AND r.status='submitted'".($tid?" AND e.teacher_id=$tid":'')." ORDER BY u.name",[$eid])->fetchAll(PDO::FETCH_ASSOC);
+    $sql="SELECT DISTINCT u.id user_id,u.name,r.id result_id,r.status FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id WHERE r.exam_id=? AND r.status='submitted'";$params=[$eid];if($tid){$sql.=' AND e.teacher_id=?';$params[]=$tid;}$sql.=' ORDER BY u.name';$students=q($sql,$params)->fetchAll(PDO::FETCH_ASSOC);
     if($students):?>
     <table class="table data-table">
       <thead><tr><th>Siswa</th><th>Status</th><th>Aksi</th></tr></thead>
@@ -719,9 +865,15 @@ if($tid){
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.js"></script>
 <script>$('.data-table').DataTable({language:{search:'Cari:',lengthMenu:'Tampilkan _MENU_ data',info:'Menampilkan _START_–_END_ dari _TOTAL_ data',zeroRecords:'Tidak ada data'}})</script>
+<script>document.querySelectorAll('.grade-roman').forEach(function(el){el.addEventListener('input',function(){var v=this.value.replace(/^(10|11|12)(?=\s|$)/,function(m){return {10:'X',11:'XI',12:'XII'}[m]});if(v!==this.value)this.value=v;});});</script>
 <script>
 document.querySelectorAll('.qtype-edit').forEach(el=>el.addEventListener('change',function(){document.getElementById(this.dataset.target).style.display=this.value==='essay'?'none':'block'}));
+$(function(){ $('.summernote').summernote({height:200,placeholder:'Tulis soal di sini...',callbacks:{onImageUpload:function(files){var fd=new FormData();fd.append('image',files[0]);fd.append('csrf','<?=csrf()?>');$.ajax({url:'?action=upload_image',method:'POST',data:fd,contentType:false,processData:false,success:function(r){if(r.url)$('.summernote').summernote('insertImage',r.url);else alert('Gagal upload: '+r.error);}});}}}); });
+function loadNotif(){$.get('?action=get_notifications',function(d){$('#notifCount').text(d.count).toggleClass('has-notif',d.count>0);var h='';if(d.list.length){d.list.forEach(function(n){h+='<a class="dropdown-item notif-item '+(n.is_read?'':'fw-semibold')+'" href="javascript:;" onclick="markNotif('+n.id+')"><small class="text-muted float-end">'+n.created_at.slice(0,10)+'</small><div>'+n.title+'</div>'+ (n.message?'<small class="text-muted">'+n.message+'</small>':'')+'</a>';});}else{h='<div class="px-3 py-2 text-muted small">Tidak ada notifikasi</div>';}$('#notifList').html(h);});}
+function markNotif(id){$.post('?action=mark_notification_read',{id:id,csrf:'<?=csrf()?>'},function(){loadNotif();});}
+<?php if(user()):?>setInterval(loadNotif,30000);loadNotif();<?php endif?>
 </script>
 <script src="assets/js/app.js"></script>
 </body></html>

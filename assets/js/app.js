@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     let fullscreenInterval;
     let _5minShown=false,_1minShown=false;
 
+    function doPing(){if(resultId)fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({action:'ping',result:resultId})});}
+    doPing();setInterval(doPing,15000);
+
     function updateWarnings(){
       if(warnCount)warnCount.querySelector('span').textContent=warnings;
       if(cheatWarning){
@@ -24,10 +27,33 @@ document.addEventListener('DOMContentLoaded',()=>{
       }
     }
 
-    function reportViolation(type){
+function reportViolation(type){
       if(!resultId)return;
       fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({action:'report_violation',result:resultId,type:type})}).then(r=>r.json()).then(d=>{if(d.ok){warnings=d.warnings;updateWarnings();if(warnings>=MAX_WARNINGS&&examForm){examForm.submit()}}});
     }
+
+    // --- Deteksi DevTools (emascript) ---
+    let devtoolsOpen=false;
+    const dtCheck=()=>{
+      const threshold=160;
+      const w=window.outerWidth-window.innerWidth>threshold;
+      const h=window.outerHeight-window.innerHeight>threshold;
+      const isOpen=w||h;
+      if(isOpen&&!devtoolsOpen){devtoolsOpen=true;reportViolation('devtools');}
+      if(!isOpen)devtoolsOpen=false;
+    };
+    try{
+      const dtElement=new Function('debugger');
+      const orig=dtElement;
+      setInterval(()=>{const start=performance.now();new Function('debugger')();dtCheck();},1000);
+    }catch(e){setInterval(dtCheck,1000);}
+
+    // --- Refresh/pindah halaman dihitung sebagai pelanggaran (jaringan lemot tetap boleh refresh) ---
+    window.addEventListener('beforeunload',()=>{
+      if(!navigator.sendBeacon)return;
+      const fd=new URLSearchParams({action:'report_violation',result:resultId,type:'page_refresh'});
+      navigator.sendBeacon('index.php',fd);
+    });
 
     function tryFullscreen(){
       fsAttempts++;
@@ -61,7 +87,27 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(e.ctrlKey&&['c','v','x','u','s','p','a'].includes(e.key.toLowerCase())){e.preventDefault();reportViolation('keyboard_shortcut')}
       if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))){e.preventDefault();reportViolation('keyboard_shortcut')}
       if(e.key==='Escape'&&document.fullscreenElement){e.preventDefault();reportViolation('fullscreen_exit')}
+      // Blokir screenshot (PrtScn, Win+Shift+S, Win+PrtScn)
+      if(e.key==='PrintScreen'){e.preventDefault();reportViolation('keyboard_shortcut')}
+      if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='s'){e.preventDefault();reportViolation('keyboard_shortcut')}
+      // Blokir tab baru
+      if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='t'){e.preventDefault();reportViolation('keyboard_shortcut')}
+      if(e.button===1){e.preventDefault();reportViolation('keyboard_shortcut')}
     });
+    // Kunci mouse di area ujian
+    document.addEventListener('mousemove',e=>{
+      if(e.clientX<0||e.clientY<0||e.clientX>window.innerWidth||e.clientY>window.innerHeight){reportViolation('window_blur')}
+    });
+    // Deteksi remote desktop / VM (heuristic)
+    try{
+      const ua=navigator.userAgent.toLowerCase();
+      if(/teamviewer|anydesk|remote|vnc|vmware|virtualbox|qemu|hyper-v|parallels/.test(ua)){reportViolation('devtools')}
+    }catch(e){}
+    // Deteksi VM via hardware concurrency rendah + deviceMemory
+    try{
+      if(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2){reportViolation('devtools')}
+      if(navigator.deviceMemory&&navigator.deviceMemory<=2){reportViolation('devtools')}
+    }catch(e){}
 
     const update=()=>{
       let left=Number(timer.dataset.end)-Math.floor(Date.now()/1000);
@@ -72,6 +118,32 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(!_1minShown&&left<=60){_1minShown=true;if(timeWarning){timeWarning.querySelector('span').textContent='Sisa waktu kurang dari 1 menit!';timeWarning.classList.remove('d-none')}}
     };
     update();setInterval(update,1000);
+
+    // --- Enforce timer per bagian soal ---
+    const sectionHeaders=document.querySelectorAll('.section-header[data-timer]');
+    if(sectionHeaders.length){
+      const sectionTimers={};
+      let currentSection=null;
+      sectionHeaders.forEach(h=>{
+        const sid=h.dataset.sectionId;
+        const timerMin=Number(h.dataset.timer||0);
+        if(timerMin>0&&!sectionTimers[sid]){
+          sectionTimers[sid]={end:Math.floor(Date.now()/1000)+timerMin*60,el:h.querySelector('.section-timer')};
+        }
+      });
+      setInterval(()=>{
+        const now=Math.floor(Date.now()/1000);
+        Object.keys(sectionTimers).forEach(sid=>{
+          const st=sectionTimers[sid];
+          const left=st.end-now;
+          if(st.el){
+            if(left<=0){st.el.textContent='Waktu habis!';}
+            else{st.el.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');}
+          }
+          if(left<=0&&examForm&&!examForm.dataset.submitted){examForm.dataset.submitted='1';examForm.submit();}
+        });
+      },1000);
+    }
     document.querySelectorAll('.answer').forEach(el=>el.addEventListener('change',()=>{
       const data=new URLSearchParams({action:'save_answer',result:resultId,question:el.dataset.question,answer:el.value});
       fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:data});
@@ -81,12 +153,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   const sidebar=document.querySelector('.sidebar');
+  const isMobile=()=>window.matchMedia('(max-width: 767.98px)').matches;
   if(sidebar){
-    sidebar.querySelectorAll('nav a').forEach(a=>{a.addEventListener('click',()=>{if(window.innerWidth<768){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}})});
+    sidebar.querySelectorAll('nav a').forEach(a=>{a.addEventListener('click',()=>{if(isMobile()){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}})});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sidebar.classList.contains('open')){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}});
     new MutationObserver(()=>document.body.classList.toggle('sidebar-open',sidebar.classList.contains('open'))).observe(sidebar,{attributes:true,attributeFilter:['class']});
   }
-  window.addEventListener('resize',()=>{if(window.innerWidth>=768&&sidebar&&sidebar.classList.contains('open')){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}});
+  window.addEventListener('resize',()=>{if(!isMobile()&&sidebar&&sidebar.classList.contains('open')){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}});
 
   const navGrid=document.querySelector('.exam-nav-grid');
   function updateNavStatus(){
@@ -103,7 +176,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
   }
   if(navGrid){
-    navGrid.addEventListener('click',e=>{const a=e.target.closest('.nav-q');if(a){e.preventDefault();const q=document.querySelector(`.question[data-q="${a.dataset.q}"]`);if(q){q.scrollIntoView({behavior:'smooth',block:'center'});q.style.transition='box-shadow .3s';q.style.boxShadow='0 0 0 3px #4f46e5';setTimeout(()=>q.style.boxShadow='',1500)}}});
+    navGrid.addEventListener('click',e=>{const a=e.target.closest('.nav-q');if(a){e.preventDefault();const q=document.querySelector(`.question[data-q="${a.dataset.q}"]`);if(q){q.scrollIntoView({behavior:'smooth',block:'center'});q.style.transition='box-shadow .3s';q.style.boxShadow='0 0 0 3px '+getComputedStyle(document.documentElement).getPropertyValue('--cb-primary').trim();setTimeout(()=>q.style.boxShadow='',1500)}}});
     document.querySelectorAll('.answer').forEach(el=>el.addEventListener('change',updateNavStatus));
     document.querySelectorAll('textarea.answer').forEach(el=>el.addEventListener('input',()=>{clearTimeout(el._navTimer);el._navTimer=setTimeout(updateNavStatus,500)}));
     updateNavStatus();
