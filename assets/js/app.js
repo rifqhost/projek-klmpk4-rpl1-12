@@ -2,6 +2,38 @@ document.addEventListener('DOMContentLoaded',()=>{
   const type=document.querySelector('#qtype'), choices=document.querySelector('#choices');
   if(type&&choices) type.addEventListener('change',()=>choices.style.display=type.value==='essay'?'none':'block');
 
+  document.querySelectorAll('.role-select').forEach(select=>{
+    const form=select.closest('form')||select.closest('.quick-form');
+    const sync=()=>{
+      const isStudent=select.value==='3';
+      form?.querySelectorAll('.student-fields').forEach(el=>el.classList.toggle('d-none',!isStudent));
+      form?.querySelectorAll('.non-student-fields').forEach(el=>el.classList.toggle('d-none',isStudent));
+      form?.querySelectorAll('.non-student-fields input[name="email"]').forEach(el=>el.required=!isStudent);
+    };
+    select.addEventListener('change',sync);
+    sync();
+  });
+
+  document.querySelectorAll('.generate-password').forEach(btn=>btn.addEventListener('click',()=>{
+    const input=btn.closest('.input-group')?.querySelector('.password-input');
+    if(!input)return;
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+    let pass='Siswa';
+    for(let i=0;i<6;i++)pass+=chars[Math.floor(Math.random()*chars.length)];
+    input.value=pass;
+    input.type='text';
+    input.focus();
+  }));
+
+  document.querySelectorAll('.select-all-questions').forEach(btn=>btn.addEventListener('click',()=>{
+    const wrap=btn.closest('.quick-form')||document;
+    wrap.querySelectorAll('.question-picker input[type="checkbox"]').forEach(x=>x.checked=true);
+  }));
+  document.querySelectorAll('.clear-questions').forEach(btn=>btn.addEventListener('click',()=>{
+    const wrap=btn.closest('.quick-form')||document;
+    wrap.querySelectorAll('.question-picker input[type="checkbox"]').forEach(x=>x.checked=false);
+  }));
+
   const timer=document.querySelector('#timer');
   if(timer){
     const examForm=document.getElementById('examForm');

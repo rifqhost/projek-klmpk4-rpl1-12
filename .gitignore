@@ -1,3 +1,6 @@
 /uploads/*
 !/uploads/.gitkeep
 !/uploads/sessions/.gitkeep
+!/uploads/images/
+!/uploads/images/.gitkeep
+desktop.ini

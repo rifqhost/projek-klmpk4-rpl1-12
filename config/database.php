@@ -4,7 +4,7 @@ function db(): PDO {
     static $pdo = null;
     if ($pdo instanceof PDO) return $pdo;
     try { $pdo = new PDO('mysql:host='.DB_HOST.';charset=utf8mb4', DB_USER, DB_PASS, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]); }
-    catch (PDOException $e) { exit('Koneksi MySQL gagal. Pastikan MySQL XAMPP aktif dan konfigurasi database benar. Detail: '.e($e->getMessage())); }
+    catch (PDOException $e) { error_log('Koneksi MySQL gagal: '.$e->getMessage()); http_response_code(500); exit('Koneksi MySQL gagal. Pastikan MySQL XAMPP aktif dan konfigurasi database benar.'); }
     $pdo->exec('CREATE DATABASE IF NOT EXISTS `'.DB_NAME.'` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     $pdo->exec('USE `'.DB_NAME.'`');
     install_database($pdo);
@@ -44,6 +44,7 @@ function install_database(PDO $p): void {
     try{$p->exec("ALTER TABLE exam_results ADD COLUMN last_ping DATETIME NULL AFTER submitted_at");}catch(PDOException$e){}
     try{$p->exec("ALTER TABLE exam_results ADD COLUMN ping_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER last_ping");}catch(PDOException$e){}
     try{$p->exec("ALTER TABLE users ADD COLUMN session_id VARCHAR(128) NULL AFTER created_at");}catch(PDOException$e){}
+    foreach(['majors','classes','subjects'] as $t){try{$p->exec("ALTER TABLE $t ADD COLUMN active TINYINT(1) NOT NULL DEFAULT 1");}catch(PDOException$e){}}
     $p->exec("INSERT IGNORE INTO academic_years (id,name,active) VALUES (1,'2026/2027',1)");
     $p->exec("INSERT IGNORE INTO majors (id,name,code) VALUES (1,'Rekayasa Perangkat Lunak','RPL')");
     $p->exec("INSERT IGNORE INTO classes (id,name,major_id,academic_year_id) VALUES (1,'XII RPL 1',1,1)");
