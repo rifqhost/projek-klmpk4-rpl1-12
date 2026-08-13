@@ -10,7 +10,9 @@ define('DB_PASS', getenv('DB_PASS') ?: '');
 define('BASE_URL', rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/'));
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    $sessionPath = dirname(__DIR__).DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'sessions';
+    $sessionPath = getenv('RENDER')
+        ? sys_get_temp_dir().DIRECTORY_SEPARATOR.'cbt_sessions'
+        : dirname(__DIR__).DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'sessions';
     if (!is_dir($sessionPath)) mkdir($sessionPath, 0700, true);
     session_save_path($sessionPath);
     session_name('cbt_session');
