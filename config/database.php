@@ -3,10 +3,24 @@ require_once __DIR__.'/config.php';
 function db(): PDO {
     static $pdo = null;
     if ($pdo instanceof PDO) return $pdo;
-    try { $pdo = new PDO('mysql:host='.DB_HOST.';charset=utf8mb4', DB_USER, DB_PASS, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]); }
-    catch (PDOException $e) { error_log('Koneksi MySQL gagal: '.$e->getMessage()); http_response_code(500); exit('Koneksi MySQL gagal. Pastikan MySQL XAMPP aktif dan konfigurasi database benar.'); }
-    $pdo->exec('CREATE DATABASE IF NOT EXISTS `'.DB_NAME.'` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
-    $pdo->exec('USE `'.DB_NAME.'`');
+    $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ];
+    $dsn = 'mysql:host='.DB_HOST.';port='.DB_PORT.';dbname='.DB_NAME.';charset=utf8mb4';
+    try {
+        $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    } catch (PDOException $e) {
+        try {
+            $pdo = new PDO('mysql:host='.DB_HOST.';port='.DB_PORT.';charset=utf8mb4', DB_USER, DB_PASS, $options);
+            $pdo->exec('CREATE DATABASE IF NOT EXISTS `'.DB_NAME.'` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+            $pdo->exec('USE `'.DB_NAME.'`');
+        } catch (PDOException $fallbackError) {
+            error_log('Koneksi MySQL gagal: '.$fallbackError->getMessage());
+            http_response_code(500);
+            exit('Koneksi MySQL gagal. Periksa environment variable DB_HOST, DB_PORT, DB_NAME, DB_USER, dan DB_PASS.');
+        }
+    }
     install_database($pdo);
     return $pdo;
 }

@@ -2,10 +2,11 @@
 declare(strict_types=1);
 date_default_timezone_set('Asia/Jakarta');
 const APP_NAME = 'CBT Sekolah';
-const DB_HOST = 'localhost';
-const DB_NAME = 'cbt_sekolah';
-const DB_USER = 'root';
-const DB_PASS = '';
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_PORT', getenv('DB_PORT') ?: '3306');
+define('DB_NAME', getenv('DB_NAME') ?: 'cbt_sekolah');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 define('BASE_URL', rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/'));
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
