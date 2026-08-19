@@ -524,17 +524,17 @@ function loadMonitor(){$.get('?action=monitor_data&exam_id=<?=$eid?>',function(d
 
 <?php elseif($page==='student'):
   role('Siswa');
-  $active=q("SELECT e.*,sc.starts_at,sc.ends_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? ORDER BY sc.starts_at DESC",[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
+  $active=q("SELECT e.*,sc.starts_at,sc.ends_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? AND e.active=1 ORDER BY sc.starts_at DESC",[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
   $history=q('SELECT e.title,r.* FROM exam_results r JOIN students s ON s.id=r.student_id JOIN exams e ON e.id=r.exam_id WHERE s.user_id=? ORDER BY r.id DESC',[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
   $now=date('Y-m-d H:i:s');
   $available=array_filter($active,fn($x)=>$x['starts_at']<=$now&&$x['ends_at']>=$now);
   $inProgress=q('SELECT exam_id FROM exam_results r JOIN students s ON s.id=r.student_id WHERE s.user_id=? AND r.status="in_progress"',[$u['id']])->fetchAll(PDO::FETCH_COLUMN);
   $doneCount=q('SELECT COUNT(*) FROM exam_results r JOIN students s ON s.id=r.student_id WHERE s.user_id=? AND r.status IN("submitted","graded")',[$u['id']])->fetchColumn();
   $avgScore=q('SELECT ROUND(AVG(r.score),1) FROM exam_results r JOIN students s ON s.id=r.student_id WHERE s.user_id=? AND r.score IS NOT NULL',[$u['id']])->fetchColumn()?:0;
-  $nextExam=q("SELECT e.title,sc.starts_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? AND sc.starts_at>NOW() ORDER BY sc.starts_at LIMIT 1",[$u['id']])->fetch(PDO::FETCH_ASSOC);
+  $nextExam=q("SELECT e.title,sc.starts_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? AND e.active=1 AND sc.starts_at>? ORDER BY sc.starts_at LIMIT 1",[$u['id'],$now])->fetch(PDO::FETCH_ASSOC);
 ?>
 <?php if($u['role']==='Siswa'):
-  $todayExams=q("SELECT e.title,sc.starts_at,sc.ends_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? AND DATE(sc.starts_at)=CURDATE() ORDER BY sc.starts_at",[$u['id']])->fetchAll(PDO::FETCH_ASSOC);
+  $todayExams=q("SELECT e.title,sc.starts_at,sc.ends_at FROM schedules sc JOIN exams e ON e.id=sc.exam_id JOIN students s ON s.class_id=sc.class_id WHERE s.user_id=? AND e.active=1 AND DATE(sc.starts_at)=? ORDER BY sc.starts_at",[$u['id'],date('Y-m-d')])->fetchAll(PDO::FETCH_ASSOC);
   if($todayExams):?>
   <div class="alert alert-info d-flex align-items-center gap-2"><i class="bi bi-megaphone-fill"></i> <div><b>Ujian Hari Ini:</b> <?=implode(', ',array_map(fn($x)=>e($x['title']).' ('.date('H:i',strtotime($x['starts_at'])).'-'.date('H:i',strtotime($x['ends_at'])).')',$todayExams))?></div></div>
   <?php endif?>
