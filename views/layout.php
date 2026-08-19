@@ -1,4 +1,4 @@
-  <?php
+<?php
 $u=user(); $flash=$_SESSION['flash']??null; unset($_SESSION['flash']);
 function opts(string $table,string $selected='',$label='name'):string{if($table==='teachers'){$s=q("SELECT t.id,u.name FROM teachers t JOIN users u ON u.id=t.user_id WHERE u.active=1 ORDER BY u.name")->fetchAll(PDO::FETCH_ASSOC);$label='name';}else{$where=in_array($table,['majors','academic_years','classes','subjects'],true)?' WHERE active=1':'';$s=q("SELECT id,$label FROM $table$where ORDER BY $label")->fetchAll(PDO::FETCH_ASSOC);}$o='';foreach($s as $r)$o.='<option value="'.$r['id'].'" '.((string)$r['id']===(string)$selected?'selected':'').'>'.e($r[$label]).'</option>';return $o;}
 function modal(string $id,string $title,string $body):void{echo '<div class="modal fade" id="'.$id.'"><div class="modal-dialog modal-lg"><form method="post" class="modal-content"><div class="modal-header"><h5>'.$title.'</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">'.csrf_field().$body.'</div><div class="modal-footer"><button class="btn btn-primary">Simpan</button></div></form></div></div>';}
