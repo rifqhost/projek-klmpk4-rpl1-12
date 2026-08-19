@@ -636,7 +636,7 @@ function loadMonitor(){$.get('?action=monitor_data&exam_id=<?=$eid?>',function(d
   $rid=(int)$_GET['result'];
   $result=q('SELECT r.*,e.title,e.duration,e.random_questions,e.random_choices,e.show_score FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN students s ON s.id=r.student_id WHERE r.id=? AND s.user_id=?',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
   if(!$result||$result['status']!=='in_progress')redirect('page=student');
-  $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,id',[$rid])->fetchAll(PDO::FETCH_COLUMN);
+  $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,question_id',[$rid])->fetchAll(PDO::FETCH_COLUMN);
   if($sq){$placeholders=implode(',',array_fill(0,count($sq),'?'));$qs=q("SELECT q.* FROM questions q WHERE q.id IN ($placeholders) ORDER BY FIELD(q.id,$placeholders)",array_merge($sq,$sq))->fetchAll(PDO::FETCH_ASSOC);}else{$qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=?'.($result['random_questions']?' ORDER BY RAND()':' ORDER BY q.id'),[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);}$totalQ=count($qs);
   $answerData=[]; foreach($qs as $x){$ans=q('SELECT answer_text,flagged FROM answers WHERE result_id=? AND question_id=?',[$rid,$x['id']])->fetch(PDO::FETCH_ASSOC);$answerData[$x['id']]=['answer'=>$ans['answer_text']??'','flagged'=>(int)($ans['flagged']??0)];}
   $sections=q('SELECT s.*,eq.question_id FROM exam_sections s LEFT JOIN exam_questions eq ON eq.section_id=s.id WHERE s.exam_id=? ORDER BY s.ordering,eq.question_id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);$questionSection=[];foreach($sections as $s){$questionSection[$s['question_id']]=$s;}
@@ -722,7 +722,7 @@ function loadMonitor(){$.get('?action=monitor_data&exam_id=<?=$eid?>',function(d
   $rid=(int)$_GET['result'];
   $result=q('SELECT r.*,e.title,e.duration,e.show_score FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN students s ON s.id=r.student_id WHERE r.id=? AND s.user_id=? AND r.status="in_progress"',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
   if(!$result)redirect('page=student');
-  $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,id',[$rid])->fetchAll(PDO::FETCH_COLUMN);
+  $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,question_id',[$rid])->fetchAll(PDO::FETCH_COLUMN);
   if($sq){$placeholders=implode(',',array_fill(0,count($sq),'?'));$qs=q("SELECT q.* FROM questions q WHERE q.id IN ($placeholders) ORDER BY FIELD(q.id,$placeholders)",array_merge($sq,$sq))->fetchAll(PDO::FETCH_ASSOC);}else{$qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=? ORDER BY q.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);}
   $answerData=[]; foreach($qs as $x){$ans=q('SELECT answer_text,flagged FROM answers WHERE result_id=? AND question_id=?',[$rid,$x['id']])->fetch(PDO::FETCH_ASSOC);$answerData[$x['id']]=['answer'=>$ans['answer_text']??'','flagged'=>(int)($ans['flagged']??0)];}
   $psections=q('SELECT s.*,eq.question_id FROM exam_sections s LEFT JOIN exam_questions eq ON eq.section_id=s.id WHERE s.exam_id=? ORDER BY s.ordering,eq.question_id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);$pquestionSection=[];foreach($psections as $s){$pquestionSection[$s['question_id']]=$s;}
@@ -772,7 +772,7 @@ function loadMonitor(){$.get('?action=monitor_data&exam_id=<?=$eid?>',function(d
   $rid=(int)$_GET['result'];
   $result=q('SELECT r.*,e.title,e.duration,e.show_score,s.name subject_name FROM exam_results r JOIN exams e ON e.id=r.exam_id JOIN subjects s ON s.id=e.subject_id JOIN students st ON st.id=r.student_id WHERE r.id=? AND st.user_id=? AND r.status IN("submitted","graded")',[$rid,$u['id']])->fetch(PDO::FETCH_ASSOC);
   if(!$result)redirect('page=student');
-  $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,id',[$rid])->fetchAll(PDO::FETCH_COLUMN);
+  $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,question_id',[$rid])->fetchAll(PDO::FETCH_COLUMN);
   if($sq){$pl=implode(',',array_fill(0,count($sq),'?'));$qs=q("SELECT q.* FROM questions q WHERE q.id IN ($pl) ORDER BY FIELD(q.id,$pl)",array_merge($sq,$sq))->fetchAll(PDO::FETCH_ASSOC);}else{$qs=q('SELECT q.* FROM exam_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.exam_id=? ORDER BY q.id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);}
   $rsections=q('SELECT s.*,eq.question_id FROM exam_sections s LEFT JOIN exam_questions eq ON eq.section_id=s.id WHERE s.exam_id=? ORDER BY s.ordering,eq.question_id',[$result['exam_id']])->fetchAll(PDO::FETCH_ASSOC);$rquestionSection=[];foreach($rsections as $s){$rquestionSection[$s['question_id']]=$s;}
 ?>
@@ -935,7 +935,7 @@ function loadMonitor(){$.get('?action=monitor_data&exam_id=<?=$eid?>',function(d
     $result=q('SELECT r.*,u.name siswa,e.title FROM exam_results r JOIN students s ON s.id=r.student_id JOIN users u ON u.id=s.user_id JOIN exams e ON e.id=r.exam_id WHERE r.exam_id=? AND s.user_id=? AND r.status="submitted"',[$eid,$uid])->fetch(PDO::FETCH_ASSOC);
     if(!$result):?><div class="panel"><p class="text-muted">Belum ada jawaban essay yang perlu dikoreksi.</p></div>
     <?php else:
-      $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,id',[$result['id']])->fetchAll(PDO::FETCH_COLUMN);
+      $sq=q('SELECT question_id FROM student_questions WHERE result_id=? ORDER BY ordering,question_id',[$result['id']])->fetchAll(PDO::FETCH_COLUMN);
       if($sq){$pl=implode(',',array_fill(0,count($sq),'?'));$sqParams=array_merge($sq,$sq);$essays=q("SELECT q.id,q.question,q.weight,a.answer_text,a.score a_score FROM questions q LEFT JOIN answers a ON a.question_id=q.id AND a.result_id=? WHERE q.id IN ($pl) AND q.type='essay' ORDER BY FIELD(q.id,$pl)",array_merge([$result['id']],$sqParams))->fetchAll(PDO::FETCH_ASSOC);}else{$essays=q('SELECT q.id,q.question,q.weight,a.answer_text,a.score a_score FROM exam_questions eq JOIN questions q ON q.id=eq.question_id LEFT JOIN answers a ON a.question_id=q.id AND a.result_id=? WHERE q.type="essay" AND eq.exam_id=?',[$result['id'],$eid])->fetchAll(PDO::FETCH_ASSOC);}
     ?>
     <div class="panel mb-3"><h5><?=e($result['title'])?> – <?=e($result['siswa'])?></h5></div>
