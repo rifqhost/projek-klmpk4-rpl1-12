@@ -1,4 +1,37 @@
 document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('input[type="password"]').forEach(input=>{
+    if(input.dataset.toggleReady)return;
+    input.dataset.toggleReady='1';
+    const wrap=input.closest('.field-input')||input.parentElement;
+    if(!wrap)return;
+    if(getComputedStyle(wrap).position==='static')wrap.style.position='relative';
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='password-toggle';
+    btn.setAttribute('aria-label','Tampilkan password');
+    btn.innerHTML='<i class="bi bi-eye"></i>';
+    btn.addEventListener('click',()=>{
+      const show=input.type==='password';
+      input.type=show?'text':'password';
+      btn.setAttribute('aria-label',show?'Sembunyikan password':'Tampilkan password');
+      btn.innerHTML=show?'<i class="bi bi-eye-slash"></i>':'<i class="bi bi-eye"></i>';
+      input.focus();
+    });
+    wrap.appendChild(btn);
+  });
+
+  document.querySelectorAll('form').forEach(form=>{
+    form.addEventListener('submit',event=>{
+      if(event.defaultPrevented)return;
+      form.classList.add('is-submitting');
+      const submitter=form.querySelector('button[type="submit"], button:not([type]), .btn-login');
+      if(submitter && !submitter.dataset.originalHtml){
+        submitter.dataset.originalHtml=submitter.innerHTML;
+        submitter.innerHTML='<span class="spinner-border spinner-border-sm" aria-hidden="true"></span><span>Memproses</span>';
+      }
+    });
+  });
+
   const type=document.querySelector('#qtype'), choices=document.querySelector('#choices');
   if(type&&choices) type.addEventListener('change',()=>choices.style.display=type.value==='essay'?'none':'block');
 
@@ -185,15 +218,53 @@ function reportViolation(type){
   }
 
   const sidebar=document.querySelector('.sidebar');
-  const isMobile=()=>window.matchMedia('(max-width: 767.98px)').matches;
+  const isMobile=()=>window.matchMedia('(max-width: 991.98px)').matches;
   if(sidebar){
     sidebar.querySelectorAll('nav a').forEach(a=>{a.addEventListener('click',()=>{if(isMobile()){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}})});
+    document.querySelector('.sidebar-backdrop')?.addEventListener('click',()=>{sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sidebar.classList.contains('open')){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}});
     new MutationObserver(()=>document.body.classList.toggle('sidebar-open',sidebar.classList.contains('open'))).observe(sidebar,{attributes:true,attributeFilter:['class']});
   }
   window.addEventListener('resize',()=>{if(!isMobile()&&sidebar&&sidebar.classList.contains('open')){sidebar.classList.remove('open');document.body.classList.remove('sidebar-open')}});
 
   const navGrid=document.querySelector('.exam-nav-grid');
+  const examForm=document.getElementById('examForm');
+  const examQuestions=examForm?Array.from(examForm.querySelectorAll('.question')):[];
+  const pager=examForm?.querySelector('.exam-pager');
+  const prevQuestion=document.getElementById('prevQuestion');
+  const nextQuestion=document.getElementById('nextQuestion');
+  const currentQuestionNo=document.getElementById('currentQuestionNo');
+  let activeQuestionIndex=0;
+  const questionHeaderMap=new Map();
+  if(examForm&&examQuestions.length){
+    let currentHeader=null;
+    Array.from(examForm.children).forEach(child=>{
+      if(child.classList?.contains('section-header'))currentHeader=child;
+      if(child.classList?.contains('question'))questionHeaderMap.set(child,currentHeader);
+    });
+    examForm.classList.add('exam-single-page');
+  }
+
+  function setActiveQuestion(index){
+    if(!examQuestions.length)return;
+    activeQuestionIndex=Math.max(0,Math.min(index,examQuestions.length-1));
+    examForm.querySelectorAll('.section-header').forEach(h=>h.classList.remove('is-active'));
+    examQuestions.forEach((q,i)=>q.classList.toggle('is-active',i===activeQuestionIndex));
+    const header=questionHeaderMap.get(examQuestions[activeQuestionIndex]);
+    if(header)header.classList.add('is-active');
+    navGrid?.querySelectorAll('.nav-q').forEach(a=>a.classList.toggle('active-page',a.dataset.q===examQuestions[activeQuestionIndex].dataset.q));
+    if(prevQuestion)prevQuestion.disabled=activeQuestionIndex===0;
+    if(nextQuestion){
+      nextQuestion.disabled=activeQuestionIndex===examQuestions.length-1;
+      nextQuestion.innerHTML=activeQuestionIndex===examQuestions.length-1?'Soal Terakhir <i class="bi bi-check2"></i>':'Berikutnya <i class="bi bi-arrow-right"></i>';
+    }
+    if(currentQuestionNo)currentQuestionNo.textContent=String(activeQuestionIndex+1);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  prevQuestion?.addEventListener('click',()=>setActiveQuestion(activeQuestionIndex-1));
+  nextQuestion?.addEventListener('click',()=>setActiveQuestion(activeQuestionIndex+1));
+
   function updateNavStatus(){
     if(!navGrid)return;
     document.querySelectorAll('.question').forEach(q=>{
@@ -208,11 +279,12 @@ function reportViolation(type){
     });
   }
   if(navGrid){
-    navGrid.addEventListener('click',e=>{const a=e.target.closest('.nav-q');if(a){e.preventDefault();const q=document.querySelector(`.question[data-q="${a.dataset.q}"]`);if(q){q.scrollIntoView({behavior:'smooth',block:'center'});q.style.transition='box-shadow .3s';q.style.boxShadow='0 0 0 3px '+getComputedStyle(document.documentElement).getPropertyValue('--cb-primary').trim();setTimeout(()=>q.style.boxShadow='',1500)}}});
+    navGrid.addEventListener('click',e=>{const a=e.target.closest('.nav-q');if(a){e.preventDefault();const q=document.querySelector(`.question[data-q="${a.dataset.q}"]`);if(q){const index=examQuestions.indexOf(q);if(index>=0)setActiveQuestion(index);else q.scrollIntoView({behavior:'smooth',block:'center'});q.style.transition='box-shadow .3s';q.style.boxShadow='0 0 0 3px '+getComputedStyle(document.documentElement).getPropertyValue('--cb-primary').trim();setTimeout(()=>q.style.boxShadow='',1500)}}});
     document.querySelectorAll('.answer').forEach(el=>el.addEventListener('change',updateNavStatus));
     document.querySelectorAll('textarea.answer').forEach(el=>el.addEventListener('input',()=>{clearTimeout(el._navTimer);el._navTimer=setTimeout(updateNavStatus,500)}));
     updateNavStatus();
   }
+  if(examQuestions.length)setActiveQuestion(0);
 
   document.querySelectorAll('.ragu-btn').forEach(btn=>{
     btn.addEventListener('click',function(){
