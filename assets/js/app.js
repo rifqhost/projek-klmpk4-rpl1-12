@@ -75,12 +75,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     const timeWarning=document.getElementById('timeWarning');
     const warnCount=document.getElementById('warningCount');
     let warnings=0;
-    const MAX_WARNINGS=Number(warnCount?.dataset?.max||3);
+    const MAX_WARNINGS=Number(warnCount?.dataset?.max||2);
+    const violationThrottle={};
     let fsAttempts=0;
     let fullscreenInterval;
     let _5minShown=false,_1minShown=false;
+    let intentionalLeave=false;
+    examForm?.addEventListener('submit',()=>{intentionalLeave=true;});
+    document.querySelectorAll('a[href*="page=preview"],a[href*="page=student"]').forEach(a=>a.addEventListener('click',()=>{intentionalLeave=true;}));
 
-    function doPing(){if(resultId)fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({action:'ping',result:resultId})});}
+    function doPing(){if(resultId)fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({action:'ping',result:resultId})}).then(r=>r.json()).then(d=>{if(!d.ok)location.href='?page=student'}).catch(()=>{});}
     doPing();setInterval(doPing,15000);
 
     function updateWarnings(){
@@ -94,7 +98,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 function reportViolation(type){
       if(!resultId)return;
-      fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({action:'report_violation',result:resultId,type:type})}).then(r=>r.json()).then(d=>{if(d.ok){warnings=d.warnings;updateWarnings();if(warnings>=MAX_WARNINGS&&examForm){examForm.submit()}}});
+      const now=Date.now();
+      if(violationThrottle[type]&&now-violationThrottle[type]<2500)return;
+      violationThrottle[type]=now;
+      fetch('index.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({action:'report_violation',result:resultId,type:type})}).then(r=>r.json()).then(d=>{if(d.ok){warnings=d.warnings;updateWarnings();if(d.submitted){location.href='?page=student';return}if(warnings>=MAX_WARNINGS&&examForm){examForm.submit()}}}).catch(()=>{});
     }
 
     // --- Deteksi DevTools (emascript) ---
@@ -115,6 +122,7 @@ function reportViolation(type){
 
     // --- Refresh/pindah halaman dihitung sebagai pelanggaran (jaringan lemot tetap boleh refresh) ---
     window.addEventListener('beforeunload',()=>{
+      if(intentionalLeave)return;
       if(!navigator.sendBeacon)return;
       const fd=new URLSearchParams({action:'report_violation',result:resultId,type:'page_refresh'});
       navigator.sendBeacon('index.php',fd);

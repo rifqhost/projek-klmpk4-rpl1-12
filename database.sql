@@ -486,7 +486,7 @@ CREATE TABLE `settings` (
 
 LOCK TABLES `settings` WRITE;
 /*!40000 ALTER TABLE `settings` DISABLE KEYS */;
-INSERT INTO `settings` VALUES ('dark_mode','0'),('exam_warning','Pastikan koneksi internet stabil selama ujian.'),('max_warnings','3'),('school_address','Indonesia'),('school_name','Sekolah Digital'),('student_email_domain','school.local');
+INSERT INTO `settings` VALUES ('dark_mode','0'),('exam_warning','Pastikan koneksi internet stabil selama ujian.'),('max_warnings','2'),('school_address','Indonesia'),('school_name','Sekolah Digital'),('student_email_domain','school.local');
 /*!40000 ALTER TABLE `settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -500,6 +500,7 @@ DROP TABLE IF EXISTS `student_questions`;
 CREATE TABLE `student_questions` (
   `result_id` int(10) unsigned NOT NULL,
   `question_id` int(10) unsigned NOT NULL,
+  `ordering` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`result_id`,`question_id`),
   CONSTRAINT `student_questions_ibfk_1` FOREIGN KEY (`result_id`) REFERENCES `exam_results` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -511,7 +512,7 @@ CREATE TABLE `student_questions` (
 
 LOCK TABLES `student_questions` WRITE;
 /*!40000 ALTER TABLE `student_questions` DISABLE KEYS */;
-INSERT INTO `student_questions` VALUES (36,2),(36,4),(37,2),(37,3),(38,2),(38,3);
+INSERT INTO `student_questions` VALUES (36,2,1),(36,4,2),(37,2,1),(37,3,2),(38,2,1),(38,3,2);
 /*!40000 ALTER TABLE `student_questions` ENABLE KEYS */;
 UNLOCK TABLES;
 

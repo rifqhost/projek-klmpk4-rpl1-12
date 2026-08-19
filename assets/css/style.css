@@ -1187,6 +1187,29 @@ td.text-nowrap,
 
 .exam-main { min-width: 0; }
 
+.exam-watermark {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: rgba(185, 86, 63, .075);
+  font-size: clamp(26px, 7vw, 76px);
+  font-weight: 850;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-18deg);
+  pointer-events: none;
+  user-select: none;
+}
+
+.exam-main > :not(.exam-watermark),
+.exam-nav {
+  position: relative;
+  z-index: 2;
+}
+
 .exam-top {
   position: sticky;
   top: 76px;
