@@ -1,0 +1,31 @@
+10 Saran Fitur Lanjutan CBT Sekolah
+
+1. Rekap Kehadiran Ujian
+   Menampilkan daftar siswa yang belum mulai, sedang mengerjakan, sudah mengumpulkan, dan terlambat masuk ujian.
+
+2. Analisis Butir Soal
+   Guru bisa melihat soal mana yang paling banyak salah, paling mudah, dan paling sulit setelah ujian selesai.
+
+3. Import Soal dari Excel/CSV
+   Guru dapat memasukkan banyak soal sekaligus dari file Excel/CSV agar pembuatan bank soal lebih cepat.
+
+4. Template Ujian Cepat
+   Guru bisa membuat ujian dari template seperti ulangan harian, kuis singkat, remedial, atau ujian akhir.
+
+5. Remedial Otomatis
+   Sistem menandai siswa dengan nilai di bawah KKM dan membantu membuat jadwal remedial khusus.
+
+6. Pengumuman per Kelas
+   Admin atau guru dapat mengirim pengumuman ke kelas tertentu, misalnya perubahan jadwal atau instruksi ujian.
+
+7. Kartu Ujian Massal
+   Admin bisa mencetak kartu ujian semua siswa dalam satu kelas sekaligus, lengkap dengan NISN dan jadwal ujian.
+
+8. Grafik Perkembangan Nilai Siswa
+   Siswa dan guru bisa melihat perkembangan nilai dari beberapa ujian dalam bentuk grafik sederhana.
+
+9. Mode Latihan Soal
+   Siswa bisa mengerjakan soal latihan dari bank soal tanpa memengaruhi nilai ujian resmi.
+
+10. Log Aktivitas Detail Saat Ujian
+    Guru/proktor dapat melihat riwayat aktivitas penting siswa selama ujian, seperti mulai ujian, simpan jawaban, pindah tab, dan submit.
